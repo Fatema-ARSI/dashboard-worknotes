@@ -1,10 +1,8 @@
-
 import dash
 from dash import dcc
 from dash import html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
-from dash.exceptions import PreventUpdate
 import pandas as pd
 import numpy as np
 from jupyter_dash import JupyterDash
@@ -12,18 +10,73 @@ from jupyter_dash import JupyterDash
 
 ###############################    DATA    #####################################
 
-
-
-df2=pd.read_excel('Customer_ALL.xlsx')
 df1=pd.read_excel('Vendor_ALL.xlsx')
+df2=pd.read_excel('Customer_ALL.xlsx')
 
 
+def interactive_multi_plot(vendor,customer, addAll = True):
+    fig = go.Figure()
+
+    gd_ven = vendor.groupby(['MDM SOLUTION'])
+    group_name_d_ven = list(set(vendor['MDM SOLUTION']))
+    
+    for grx in group_name_d_ven:
+      df_ven = gd_ven.get_group(grx)
+      
+      fig.add_trace(go.Scattermapbox(lon=df_ven ['LNG'],
+                                    lat=df_ven ['LAT'],
+                                    name=  grx +" "+ "Vendor",
+                                    mode='markers',
+                                    marker=dict(size=8,color="orange"),
+                                    meta=grx,
+                                    hoverinfo='text',
+                                    hovertext=
+                                    '<b>Country</b>: ' + df_ven['COUNTRY'].astype(str) + '<br>' +
+                                    '<b>Tool</b>: ' + df_ven['MDM SOLUTION'].astype(str) + '<br>' +
+                                    '<b>BU</b>: ' +  df_ven['BU'].astype(str) + '<br>' +
+                                    '<b>Company Code</b>: ' + df_ven['COMPANY CODE'].astype(str) ))
+
+    gd_cus = customer.groupby(['MDM SOLUTION'])
+    group_name_d_cus = list(set(customer['MDM SOLUTION']))
+    
+    for grx in group_name_d_cus:
+      df_cus = gd_cus.get_group(grx)
+      fig.add_trace(go.Scattermapbox(lon=df_cus ['LNG'],
+                                     lat=df_cus ['LAT'],
+                                     name=  grx +" "+ "Customer",
+                                     mode='markers',
+                                     marker=dict(size=8,color="blue"),
+                                     meta=grx,
+                                     hoverinfo='text',
+                                     hovertext=
+                                     '<b>Country</b>: ' + df_cus['COUNTRY'].astype(str) + '<br>' +
+                                     '<b>Tool</b>: ' + df_cus['MDM SOLUTION'].astype(str) + '<br>' +
+                                     '<b>BU</b>: ' +  df_cus['BU'].astype(str) + '<br>' +
+                                     '<b>Company Code</b>: ' + df_cus['COMPANY CODE'].astype(str) ))
+    
+
+    fig.layout.plot_bgcolor = '#010028'
+    fig.layout.paper_bgcolor = '#010028'
+    
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                      width=900,
+                      height=550,
+                      hovermode='closest',
+                      mapbox=dict(accesstoken='pk.eyJ1IjoicXM2MjcyNTI3IiwiYSI6ImNraGRuYTF1azAxZmIycWs0cDB1NmY1ZjYifQ.I1VJ3KjeM-S613FLv3mtkw',
+                                  style='open-street-map',),
+                      legend=dict(itemclick= 'toggleothers',
+                                  # when you are clicking an item in legend all that are not in the same group are hidden
+                                  orientation="v",
+                                  x=1.05,
+                                  y=0.8,
+                                  font=dict(color='#fff', size=12),
+                                  title='Master Data'))
 
 
-################################  Frame     #######################################
+    return fig
 
-
-
+fig = interactive_multi_plot(df1, df2)
+################################  FRAME CONTAINERS    #######################################
 
 font_awesome = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
 meta_tags = [{"name": "viewport", "content": "width=device-width"}]
@@ -63,23 +116,23 @@ app.layout = html.Div([
     html.Div([
         html.Div([
             html.P('Select Tool', className = 'fix_label', style = {'color': 'white', 'margin-top': '2px'}),
-            dcc.Dropdown(id='solution',
+            dcc.Dropdown(id='tools',
                          multi=False,
                          clearable=True,
                          value='MDM_V2',
                          placeholder='Please select your tool',
                          options=['MDM_V2','Jagger','Promenta','TIBCO'], className='dcc_compon'),
-
-
+            dcc.Checklist(id='data',
+                          value='Vendor',
+                          options=['Vendor','Customer'],
+                          style={'color': 'white','font-size':20},
+                          inline=True,
+                          className='fix_label'),
 
 
             ], className = "create_container1 four columns", style = {'margin-bottom': '0px'}),
         ], className = "row flex-display"),
-
-
-
-
-
+  
 
 
     html.Div([html.Div([
@@ -124,7 +177,7 @@ app.layout = html.Div([
         ], className="create_container four columns", id="cross-filter-options"),
 
         html.Div([
-                        dcc.Graph(id="map")], className="create_container nine columns"),
+                        dcc.Graph(id="map",figure=fig)], className="create_container nine columns"),
 
                         ], className="row flex-display"),
 
@@ -135,9 +188,9 @@ app.layout = html.Div([
 
 
 @app.callback(Output('text1', 'children'),
-              [Input('solution', 'value')])
+              [Input('tools', 'value')])
 
-def update_text1(solution):
+def update_text1(tools):
 
 
     return [
@@ -148,7 +201,7 @@ def update_text1(solution):
                    },
 
                    ),
-             html.P(solution ,
+             html.P(tools ,
                        style = {'textAlign':'center',
                                'color': 'orange',
                                 'fontSize': 40,
@@ -165,11 +218,11 @@ def update_text1(solution):
 
 
 @app.callback(Output('text2', 'children'),
-              [Input('solution', 'value')])
+              [Input('tools', 'value')])
 
-def update_text2(solution):
-    c_ven=df1[df1['MDM SOLUTION']==solution]['COUNTRY'].unique()
-    c_cus=df2[df2['MDM SOLUTION']==solution]['COUNTRY'].unique()
+def update_text2(tools):
+    c_ven=df1[df1['MDM SOLUTION']==tools]['COUNTRY'].unique()
+    c_cus=df2[df2['MDM SOLUTION']==tools]['COUNTRY'].unique()
     Countries=len(c_ven)+len(c_cus)
 
 
@@ -188,7 +241,7 @@ def update_text2(solution):
                                 'fontSize': 40,
                                 },
                        ),
-             html.P('Countries',
+             html.P(' Countries',
                    style = {'textAlign':'center',
                             'color': '#dd1e35',
                             'fontSize': 20,
@@ -200,11 +253,11 @@ def update_text2(solution):
 
 
 @app.callback(Output('text3', 'children'),
-              [Input('solution', 'value')])
+              [Input('tools', 'value')])
 
-def update_text3(solution):
-    b_ven=df1[df1['MDM SOLUTION']==solution]['BU'].unique()
-    b_cus=df2[df2['MDM SOLUTION']==solution]['BU'].unique()
+def update_text3(tools):
+    b_ven=df1[df1['MDM SOLUTION']==tools]['BU'].unique()
+    b_cus=df2[df2['MDM SOLUTION']==tools]['BU'].unique()
     BUs=len(b_ven)+len(b_cus)
 
 
@@ -234,11 +287,11 @@ def update_text3(solution):
                        ]
 
 @app.callback(Output('text4', 'children'),
-              [Input('solution', 'value')])
+              [Input('tools', 'value')])
 
-def update_text4(solution):
-    e_ven=df1[df1['MDM SOLUTION']==solution]['COMPANY CODE'].unique()
-    e_cus=df2[df2['MDM SOLUTION']==solution]['COMPANY CODE'].unique()
+def update_text4(tools):
+    e_ven=df1[df1['MDM SOLUTION']==tools]['COMPANY CODE'].unique()
+    e_cus=df2[df2['MDM SOLUTION']==tools]['COMPANY CODE'].unique()
     Entities=len(e_ven)+len(e_cus)
 
 
@@ -267,13 +320,13 @@ def update_text4(solution):
                    ),
                        ]
 
-# Create pie chart (total casualties)
+# Create pie chart :
 @app.callback(Output('pie_chart', 'figure'),
-              [Input('solution', 'value')])
+              [Input('tools', 'value')])
 
-def update_graph(solution):
-    vendor=df1[df1['MDM SOLUTION']==solution]['DATA'].count()
-    customer=df2[df2['MDM SOLUTION']==solution]['DATA'].count()
+def update_graph(tools):
+    vendor=df1[df1['MDM SOLUTION']==tools]['DATA'].count()
+    customer=df2[df2['MDM SOLUTION']==tools]['DATA'].count()
     colors = ['#09F3F0',  '#e55467']
 
     return {
@@ -297,7 +350,7 @@ def update_graph(solution):
             paper_bgcolor='#1f2c56',
             hovermode='closest',
             title={
-                'text': 'Vendor - Customer Implemenation for  ' + '<br>' + (solution),
+                'text': 'Vendor - Customer Implemenation for  ' + '<br>' + (tools),
 
 
                 'y': 0.93,
@@ -321,64 +374,17 @@ def update_graph(solution):
         }
 
 
-# Create scattermapbox chart
-@app.callback(Output('map', 'figure'),
-              [Input('solution', 'value')])
-def update_graph(solution):
-    
-    fig = go.Figure()
-
-    gd_ven = df1.groupby(['MDM SOLUTION'])
-    group_name_d_ven = list(set(df1['MDM SOLUTION']))
-    df_ven = gd_ven.get_group(solution)
-    fig.add_trace(go.Scattermapbox(lon=df_ven ['LNG'],
-                                   lat=df_ven ['LAT'],
-                                   name=  solution +" "+ "Vendor",
-                                   mode='markers',
-                                   marker=dict(size=8,color="orange"),
-                                   meta=solution,
-                                   hoverinfo='text',
-                                   hovertext=
-                                   '<b>Country</b>: ' + df_ven['COUNTRY'].astype(str) + '<br>' +
-                                   '<b>Tool</b>: ' + df_ven['MDM SOLUTION'].astype(str) + '<br>' +
-                                   '<b>BU</b>: ' +  df_ven['BU'].astype(str) + '<br>' +
-                                   '<b>Company Code</b>: ' + df_ven['COMPANY CODE'].astype(str) ))
-
-
-    gd_cus = df2.groupby(['MDM SOLUTION'])
-    group_name_d_cus = list(set(df2['MDM SOLUTION']))
-    df_cus = gd_cus.get_group(solution)
-    fig.add_trace(go.Scattermapbox(lon=df_cus ['LNG'],
-                                    lat=df_cus ['LAT'],
-                                    name=  solution +" "+ "Customer",
-                                    mode='markers',
-                                    marker=dict(size=8,color="blue"),
-                                    meta=solution,
-                                     hoverinfo='text',
-                                     hovertext=
-                                     '<b>Country</b>: ' + df_cus['COUNTRY'].astype(str) + '<br>' +
-                                     '<b>Tool</b>: ' + df_cus['MDM SOLUTION'].astype(str) + '<br>' +
-                                     '<b>BU</b>: ' +  df_cus['BU'].astype(str) + '<br>' +
-                                     '<b>Company Code</b>: ' + df_cus['COMPANY CODE'].astype(str) ))
-    fig.layout.plot_bgcolor = '#1f2c56'
-    fig.layout.paper_bgcolor = '#1f2c56'
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
-                       width=900,
-                       height=550,
-                       hovermode='closest',
-                       mapbox=dict(accesstoken='pk.eyJ1IjoicXM2MjcyNTI3IiwiYSI6ImNraGRuYTF1azAxZmIycWs0cDB1NmY1ZjYifQ.I1VJ3KjeM-S613FLv3mtkw',
-                                   style='open-street-map',),
-                       legend=dict(itemclick= 'toggleothers',
-                                    # when you are clicking an item in legend all that are not in the same group are hidden
-                                   orientation="v",
-                                   x=1.05,
-                                   y=0.8,
-                                   font=dict(color='#fff', size=12),
-                                   title='Master Data'))
-
-
-
+@app.callback(
+    Output("map", "figure"),
+    Input("tools", "value"),
+    State("map", "figure"),
+)
+def updateGraphCB(tools, fig):
+    # filter traces...
+    fig = go.Figure(fig).update_traces(visible=False)
+    fig.update_traces(visible=True, selector={"meta":tools})
     return fig
 
+app.run_server()
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
