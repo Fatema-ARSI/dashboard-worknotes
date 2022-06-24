@@ -6,6 +6,7 @@ import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
 from jupyter_dash import JupyterDash
+import dash_bootstrap_components as dbc
 
 
 ###############################    DATA    #####################################
@@ -19,10 +20,10 @@ def interactive_multi_plot(vendor,customer, addAll = True):
 
     gd_ven = vendor.groupby(['MDM SOLUTION'])
     group_name_d_ven = list(set(vendor['MDM SOLUTION']))
-    
+
     for grx in group_name_d_ven:
       df_ven = gd_ven.get_group(grx)
-      
+
       fig.add_trace(go.Scattermapbox(lon=df_ven ['LNG'],
                                     lat=df_ven ['LAT'],
                                     name=  grx +" "+ "Vendor",
@@ -38,7 +39,7 @@ def interactive_multi_plot(vendor,customer, addAll = True):
 
     gd_cus = customer.groupby(['MDM SOLUTION'])
     group_name_d_cus = list(set(customer['MDM SOLUTION']))
-    
+
     for grx in group_name_d_cus:
       df_cus = gd_cus.get_group(grx)
       fig.add_trace(go.Scattermapbox(lon=df_cus ['LNG'],
@@ -53,11 +54,11 @@ def interactive_multi_plot(vendor,customer, addAll = True):
                                      '<b>Tool</b>: ' + df_cus['MDM SOLUTION'].astype(str) + '<br>' +
                                      '<b>BU</b>: ' +  df_cus['BU'].astype(str) + '<br>' +
                                      '<b>Company Code</b>: ' + df_cus['COMPANY CODE'].astype(str) ))
-    
+
 
     fig.layout.plot_bgcolor = '#010028'
     fig.layout.paper_bgcolor = '#010028'
-    
+
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
                       width=900,
                       height=550,
@@ -80,12 +81,15 @@ fig = interactive_multi_plot(df1, df2)
 
 font_awesome = "https://use.fontawesome.com/releases/v5.10.2/css/all.css"
 meta_tags = [{"name": "viewport", "content": "width=device-width"}]
+
 external_stylesheets = [meta_tags, font_awesome]
 
-app = JupyterDash(__name__, external_stylesheets = external_stylesheets)
+
+app = JupyterDash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
     html.Div([
+
         html.Div([
             html.Img(src=app.get_asset_url('saint-gobain.png'),
                      id='sg-image',
@@ -106,7 +110,7 @@ app.layout = html.Div([
         ], className="one-half column", id="title"),
 
         html.Div([
-            html.H6('Data Last Updated: June 18, 2022' ,
+            html.H6('Data Last Updated: June 24, 2022' ,
                     style={'color': 'orange'}),
 
         ], className="one-third column", id='title1'),
@@ -121,45 +125,96 @@ app.layout = html.Div([
                          clearable=True,
                          value='MDM_V2',
                          placeholder='Please select your tool',
-                         options=['MDM_V2','Jagger','Promenta','TIBCO'], className='dcc_compon'),
-            dcc.Checklist(id='data',
-                          value='Vendor',
-                          options=['Vendor','Customer'],
-                          style={'color': 'white','font-size':20},
+                         options=['MDM_V2','Jagger','Promenta'], className='dcc_compon'),
+            dcc.RadioItems(id='data',
+                          value='Both',
+                          options=['Both','Vendor','Customer'],
+                          style={'color': 'white','font-size':20,},
+                          inputStyle={"margin-right": "10px"},
                           inline=True,
                           className='fix_label'),
 
 
             ], className = "create_container1 four columns", style = {'margin-bottom': '0px'}),
         ], className = "row flex-display"),
-  
+
 
 
     html.Div([html.Div([
-        html.Div(id= "text1",className = 'card_size'
+        dbc.Button(id= "text1",className = 'card_size'
                 ),
-
-
+        dbc.Modal([
+                   dbc.ModalHeader('Table',style={'background-color':'#ced4da'},close_button=False),
+                   dbc.ModalBody(id='data1'),
+                   dbc.ModalFooter(dbc.Button("Close", id="close1",style={'background-color':'#ced4da'}),),],
+                 id="modal1",
+                 centered=True,
+                 is_open=False,
+                 size="xl",        # "sm", "lg", "xl"
+                 backdrop=True,    # True, False or Static for modal to not be closed by clicking on backdrop
+                 scrollable=True,  # False or True if modal has a lot of text
+                 #fullscreen=True,    # True, False
+                 fade=True,
+                 ),
 
         ], className="card_container big three columns",),
 
           html.Div([
-              html.Div(id="text2",className = 'card_size'
+              dbc.Button(id="text2",className = 'card_size'
+                      ),
+              dbc.Modal([
+                         dbc.ModalHeader('Table',style={'background-color':'#ced4da'},close_button=False),
+                         dbc.ModalBody(dbc.Table.from_dataframe(df1, striped=True, bordered=True, hover=True)),
+                         dbc.ModalFooter(dbc.Button("Close", id="close2",style={'background-color':'#ced4da'}),),],
+                       id="modal2",
+                       centered=True,
+                       is_open=False,
+                       size="xl",        # "sm", "lg", "xl"
+                       backdrop=True,    # True, False or Static for modal to not be closed by clicking on backdrop
+                       scrollable=True,  # False or True if modal has a lot of text
+                       #fullscreen=True,    # True, False
+                       fade=True,
+                       ),  ]       # True, False
+
+
+            , className="card_container big three columns",),
+
+          html.Div([
+              dbc.Button(id="text3",className = 'card_size'
+                      ),
+             dbc.Modal([
+                        dbc.ModalHeader('Table',style={'background-color':'#ced4da'},close_button=False),
+                        dbc.ModalBody(dbc.Table.from_dataframe(df1, striped=True, bordered=True, hover=True)),
+                        dbc.ModalFooter(dbc.Button("Close", id="close3",style={'background-color':'#ced4da'}),),],
+                      id="modal3",
+                      centered=True,
+                      is_open=False,
+                      size="xl",        # "sm", "lg", "xl"
+                      backdrop=True,    # True, False or Static for modal to not be closed by clicking on backdrop
+                      scrollable=True,  # False or True if modal has a lot of text
+                      #fullscreen=True,    # True, False
+                      fade=True,
                       ),
 
             ], className="card_container big three columns",
           ),
 
           html.Div([
-              html.Div(id="text3",className = 'card_size'
+              dbc.Button(id="text4",className = 'card_size'
                       ),
-
-            ], className="card_container big three columns",
-          ),
-
-          html.Div([
-              html.Div(id="text4",className = 'card_size'
-                      ),
+              dbc.Modal([
+                         dbc.ModalHeader('Table',style={'background-color':'#ced4da'},close_button=False),
+                         dbc.ModalBody(dbc.Table.from_dataframe(df1, striped=True, bordered=True, hover=True)),
+                         dbc.ModalFooter(dbc.Button("Close", id="close4",style={'background-color':'#ced4da'}),),],
+                       id="modal4",
+                       centered=True,
+                       is_open=False,
+                       size="xl",        # "sm", "lg", "xl"
+                       backdrop=True,    # True, False or Static for modal to not be closed by clicking on backdrop
+                       scrollable=True,  # False or True if modal has a lot of text
+                       #fullscreen=True,    # True, False
+                       fade=True,
+                       ),
 
               ], className="card_container big three columns")
 
@@ -181,144 +236,244 @@ app.layout = html.Div([
 
                         ], className="row flex-display"),
 
-                ], id="mainContainer",
-                style={"display": "flex", "flex-direction": "column"})
+                ], id="mainContainer",style={"display": "flex", "flex-direction": "column"}
+                )
 
 ################################### Assignment ###########################
 
 
 @app.callback(Output('text1', 'children'),
-              [Input('tools', 'value')])
+              [Input('tools', 'value')],
+              [Input('data', 'value')])
 
-def update_text1(tools):
-
-
-    return [
-            html.H6(children='Selected MDM Tool',
-                   style = {'textAlign':'center',
-                            'color': 'white',
-
-                   },
-
-                   ),
-             html.P(tools ,
+def update_text1(tools,data):
+    if data=='Vendor':
+        return [html.H6(children='Data for',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(tools ,
                        style = {'textAlign':'center',
                                'color': 'orange',
-                                'fontSize': 40,
-                                },
-                       ),
+                                'fontSize': 40,},),
+               html.P('Vendor',
+                      style = {'textAlign':'center',
+                               'color': 'orange',
+                               'fontSize': 20,},),]
+    elif data=='Customer':
+        return [html.H6(children='Data for',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(tools ,
+                       style = {'textAlign':'center',
+                               'color': 'orange',
+                                'fontSize': 40,},),
+               html.P('Customer',
+                      style = {'textAlign':'center',
+                               'color': 'orange',
+                               'fontSize': 20,},),]
+    else:
+        return [html.H6(children='Data for',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(tools ,
+                       style = {'textAlign':'center',
+                               'color': 'orange',
+                                'fontSize': 40,},),]
 
-                       ]
 
 
 
+@app.callback(
+    Output("modal1", "is_open"),
 
+    [Input("text1", "n_clicks"), Input("close1", "n_clicks")],
+    [State("modal1", "is_open")],)
 
+def modal_data1(n1, n2, is_open):
+
+    if n1 or n2:
+        return not is_open
+    return is_open
 
 
 
 @app.callback(Output('text2', 'children'),
-              [Input('tools', 'value')])
+              [Input('tools', 'value')],
+              [Input('data', 'value')])
 
-def update_text2(tools):
+def update_text2(tools,data):
     c_ven=df1[df1['MDM SOLUTION']==tools]['COUNTRY'].unique()
     c_cus=df2[df2['MDM SOLUTION']==tools]['COUNTRY'].unique()
     Countries=len(c_ven)+len(c_cus)
 
-
-
-    return [
-            html.H6(children='Implemented in ',
-                   style = {'textAlign':'center',
-                            'color': 'white',
-
-                   },
-
-                   ),
-             html.P(Countries ,
-                       style = {'textAlign':'center',
+    if data=='Vendor':
+        return [html.H6(children='Implemented in ',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(len(c_ven),
+                        style = {'textAlign':'center',
+                                 'color': '#dd1e35',
+                                 'fontSize': 40,},),
+               html.P(' Countries',
+                      style = {'textAlign':'center',
                                'color': '#dd1e35',
-                                'fontSize': 40,
-                                },
-                       ),
-             html.P(' Countries',
-                   style = {'textAlign':'center',
-                            'color': '#dd1e35',
-                            'fontSize': 20,
+                               'fontSize': 20,},),]
+    elif data=='Customer':
+        return [html.H6(children='Implemented in ',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(len(c_cus) ,
+                        style = {'textAlign':'center',
+                                 'color': '#dd1e35',
+                                 'fontSize': 40,},),
+               html.P(' Countries',
+                      style = {'textAlign':'center',
+                               'color': '#dd1e35',
+                               'fontSize': 20,},),]
+    else:
+        return [html.H6(children='Implemented in ',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(Countries ,
+                        style = {'textAlign':'center',
+                                 'color': '#dd1e35',
+                                 'fontSize': 40,},),
+               html.P(' Countries',
+                      style = {'textAlign':'center',
+                               'color': '#dd1e35',
+                               'fontSize': 20,},),]
 
-                   },
+@app.callback(
+    Output("modal2", "is_open"),
+    [Input("text2", "n_clicks"),
+    Input("close2", "n_clicks"),],
+    [State("modal2", "is_open")],
+)
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
 
-                   ),
-                       ]
 
 
 @app.callback(Output('text3', 'children'),
-              [Input('tools', 'value')])
+              [Input('tools', 'value')],
+              [Input('data', 'value')])
 
-def update_text3(tools):
+def update_text3(tools,data):
     b_ven=df1[df1['MDM SOLUTION']==tools]['BU'].unique()
     b_cus=df2[df2['MDM SOLUTION']==tools]['BU'].unique()
     BUs=len(b_ven)+len(b_cus)
 
 
 
-    return [
-            html.H6(children='Total ',
-                   style = {'textAlign':'center',
-                            'color': 'white',
+    if data=='Vendor':
+        return [html.H6(children='Implemented in ',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(len(b_ven),
+                        style = {'textAlign':'center',
+                                 'color': '#dd1e35',
+                                 'fontSize': 40,},),
+               html.P(' BUs',
+                      style = {'textAlign':'center',
+                               'color': '#dd1e35',
+                               'fontSize': 20,},),]
+    elif data=='Customer':
+        return [html.H6(children='Implemented in ',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(len(b_cus) ,
+                        style = {'textAlign':'center',
+                                 'color': '#dd1e35',
+                                 'fontSize': 40,},),
+               html.P(' BUs',
+                      style = {'textAlign':'center',
+                               'color': '#dd1e35',
+                               'fontSize': 20,},),]
+    else:
+        return [html.H6(children='Implemented in ',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(BUs ,
+                        style = {'textAlign':'center',
+                                 'color': '#dd1e35',
+                                 'fontSize': 40,},),
+               html.P(' BUs',
+                      style = {'textAlign':'center',
+                               'color': '#dd1e35',
+                               'fontSize': 20,},),]
 
-                   },
 
-                   ),
-             html.P(BUs ,
-                       style = {'textAlign':'center',
-                               'color': '#09F3F0',
-                                'fontSize': 40,
-                                },
-                       ),
-             html.P('BUs',
-                   style = {'textAlign':'center',
-                            'color': '#09F3F0',
-                            'fontSize': 20,
+@app.callback(
+    Output("modal3", "is_open"),
+    [Input("text3", "n_clicks"), Input("close3", "n_clicks")],
+    [State("modal3", "is_open")],
+)
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
 
-                   },
-
-                   ),
-                       ]
 
 @app.callback(Output('text4', 'children'),
-              [Input('tools', 'value')])
+              [Input('tools', 'value')],
+              [Input('data', 'value')])
 
-def update_text4(tools):
+
+def update_text4(tools,data):
     e_ven=df1[df1['MDM SOLUTION']==tools]['COMPANY CODE'].unique()
     e_cus=df2[df2['MDM SOLUTION']==tools]['COMPANY CODE'].unique()
     Entities=len(e_ven)+len(e_cus)
 
 
 
-    return [
-            html.H6(children='Implemented in ',
-                   style = {'textAlign':'center',
-                            'color': 'white',
+    if data=='Vendor':
+        return [html.H6(children='Implemented in ',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(len(e_ven),
+                        style = {'textAlign':'center',
+                                 'color': '#dd1e35',
+                                 'fontSize': 40,},),
+               html.P(' Entities',
+                      style = {'textAlign':'center',
+                               'color': '#dd1e35',
+                               'fontSize': 20,},),]
+    elif data=='Customer':
+        return [html.H6(children='Implemented in ',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(len(e_cus) ,
+                        style = {'textAlign':'center',
+                                 'color': '#dd1e35',
+                                 'fontSize': 40,},),
+               html.P(' Entities',
+                      style = {'textAlign':'center',
+                               'color': '#dd1e35',
+                               'fontSize': 20,},),]
+    else:
+        return [html.H6(children='Implemented in ',
+                        style = {'textAlign':'center',
+                                 'color': 'white',},),
+                html.P(Entities ,
+                        style = {'textAlign':'center',
+                                 'color': '#dd1e35',
+                                 'fontSize': 40,},),
+               html.P(' Entities',
+                      style = {'textAlign':'center',
+                               'color': '#dd1e35',
+                               'fontSize': 20,},),]
 
-                   },
-
-                   ),
-             html.P(Entities ,
-                       style = {'textAlign':'center',
-                               'color': '#e55467',
-                                'fontSize': 40,
-                                },
-                       ),
-             html.P('Entities',
-                   style = {'textAlign':'center',
-                            'color': '#e55467',
-                            'fontSize': 20,
-
-                   },
-
-                   ),
-                       ]
+@app.callback(
+    Output("modal4", "is_open"),
+    [Input("text4", "n_clicks"), Input("close4", "n_clicks")],
+    [State("modal4", "is_open")],
+)
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
 
 # Create pie chart :
 @app.callback(Output('pie_chart', 'figure'),
@@ -385,6 +540,8 @@ def updateGraphCB(tools, fig):
     fig.update_traces(visible=True, selector={"meta":tools})
     return fig
 
-app.run_server()
+
 if __name__ == '__main__':
+    app.run_server(debug=True)
+
     app.run_server(debug=False)
