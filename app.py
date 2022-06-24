@@ -104,8 +104,8 @@ app.layout = html.Div([
         ),
         html.Div([
             html.Div([
-                html.H3("MDM SCOPE AROUND SAINT-GOBAIN", style={"margin-bottom": "0px", 'color': 'white'}),
-                html.H5("Track MDM Implementation", style={"margin-top": "0px", 'color': 'white'}),
+                html.H4("MDM SCOPE AROUND SAINT-GOBAIN", style={"margin-bottom": "0px", 'color': 'white'}),
+                html.H6("Track MDM Implementation", style={"margin-top": "0px", 'color': 'white'}),
             ])
         ], className="one-half column", id="title"),
 
@@ -144,7 +144,7 @@ app.layout = html.Div([
         dbc.Button(id= "text1",className = 'card_size'
                 ),
         dbc.Modal([
-                   dbc.ModalHeader('Table',style={'background-color':'#ced4da'},close_button=False),
+                   dbc.ModalHeader('MDM SCOPE DATA',style={'background-color':'#ced4da'},close_button=False),
                    dbc.ModalBody(id='data1'),
                    dbc.ModalFooter(dbc.Button("Close", id="close1",style={'background-color':'#ced4da'}),),],
                  id="modal1",
@@ -163,8 +163,8 @@ app.layout = html.Div([
               dbc.Button(id="text2",className = 'card_size'
                       ),
               dbc.Modal([
-                         dbc.ModalHeader('Table',style={'background-color':'#ced4da'},close_button=False),
-                         dbc.ModalBody(dbc.Table.from_dataframe(df1, striped=True, bordered=True, hover=True)),
+                         dbc.ModalHeader('MDM SCOPE DATA',style={'background-color':'#ced4da'},close_button=False),
+                         dbc.ModalBody(id='data2'),
                          dbc.ModalFooter(dbc.Button("Close", id="close2",style={'background-color':'#ced4da'}),),],
                        id="modal2",
                        centered=True,
@@ -183,8 +183,8 @@ app.layout = html.Div([
               dbc.Button(id="text3",className = 'card_size'
                       ),
              dbc.Modal([
-                        dbc.ModalHeader('Table',style={'background-color':'#ced4da'},close_button=False),
-                        dbc.ModalBody(dbc.Table.from_dataframe(df1, striped=True, bordered=True, hover=True)),
+                        dbc.ModalHeader('MDM SCOPE DATA',style={'background-color':'#ced4da'},close_button=False),
+                        dbc.ModalBody(id='data3'),
                         dbc.ModalFooter(dbc.Button("Close", id="close3",style={'background-color':'#ced4da'}),),],
                       id="modal3",
                       centered=True,
@@ -203,8 +203,8 @@ app.layout = html.Div([
               dbc.Button(id="text4",className = 'card_size'
                       ),
               dbc.Modal([
-                         dbc.ModalHeader('Table',style={'background-color':'#ced4da'},close_button=False),
-                         dbc.ModalBody(dbc.Table.from_dataframe(df1, striped=True, bordered=True, hover=True)),
+                         dbc.ModalHeader('MDM SCOPE DATA',style={'background-color':'#ced4da'},close_button=False),
+                         dbc.ModalBody(id='data4'),
                          dbc.ModalFooter(dbc.Button("Close", id="close4",style={'background-color':'#ced4da'}),),],
                        id="modal4",
                        centered=True,
@@ -240,7 +240,7 @@ app.layout = html.Div([
                 )
 
 ################################### Assignment ###########################
-
+#########   TEXT 1
 
 @app.callback(Output('text1', 'children'),
               [Input('tools', 'value')],
@@ -284,18 +284,38 @@ def update_text1(tools,data):
 
 
 @app.callback(
+
+    Output("data1", "children"),
+    [Input("tools", "value"),],
+    [Input("data", "value"),],)
+
+
+def data1(tools,data):
+    dff1=df1[df1['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
+    dff2=df2[df2['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
+    dff3=dff1.append(dff2)
+
+    if data=='Vendor':
+        return [dbc.Table.from_dataframe(dff1, striped=True, bordered=True, hover=True)]
+    elif data=='Customer':
+        return [dbc.Table.from_dataframe(dff2, striped=True, bordered=True, hover=True)]
+    else:
+        return [dbc.Table.from_dataframe(dff3, striped=True, bordered=True, hover=True)]
+
+
+@app.callback(
     Output("modal1", "is_open"),
-
-    [Input("text1", "n_clicks"), Input("close1", "n_clicks")],
-    [State("modal1", "is_open")],)
-
-def modal_data1(n1, n2, is_open):
-
+    [Input("text1", "n_clicks"),
+    Input("close1", "n_clicks"),],
+    [State("modal1", "is_open")],
+)
+def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
 
 
+########## TEXT 2
 
 @app.callback(Output('text2', 'children'),
               [Input('tools', 'value')],
@@ -344,6 +364,32 @@ def update_text2(tools,data):
                                'fontSize': 20,},),]
 
 @app.callback(
+
+    Output("data2", "children"),
+    [Input("tools", "value"),],
+    [Input("data", "value"),],)
+
+
+def data2(tools,data):
+    dff1_cnt=df1[df1['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
+    dff1_cnt=pd.pivot_table(dff1_cnt,values=['ERP','BU','COMPANY CODE','ENTITY NAME','DATA'],index=['MDM SOLUTION','COUNTRY'],aggfunc=pd.Series.nunique)
+    dff1_cnt=dff1_cnt.reset_index()
+    dff2_cnt=df2[df2['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
+    dff2_cnt=pd.pivot_table(dff2_cnt,values=['ERP','BU','COMPANY CODE','ENTITY NAME','DATA'],index=['MDM SOLUTION','COUNTRY'],aggfunc=pd.Series.nunique)
+    dff2_cnt=dff2_cnt.reset_index()
+    dff3_cnt=dff1_cnt.append(dff2_cnt)
+    dff3_cnt=pd.pivot_table(dff3_cnt,values=['ERP','BU','COMPANY CODE','ENTITY NAME','DATA'],index=['MDM SOLUTION','COUNTRY'],aggfunc=pd.Series.nunique)
+    dff3_cnt=dff3_cnt.reset_index()
+
+    if data=='Vendor':
+        return [dbc.Table.from_dataframe(dff1_cnt, )]
+    elif data=='Customer':
+        return [dbc.Table.from_dataframe(dff2_cnt, )]
+    else:
+        return [dbc.Table.from_dataframe(dff3_cnt, )]
+
+
+@app.callback(
     Output("modal2", "is_open"),
     [Input("text2", "n_clicks"),
     Input("close2", "n_clicks"),],
@@ -355,6 +401,9 @@ def toggle_modal(n1, n2, is_open):
     return is_open
 
 
+
+
+###########@ TEXT 3
 
 @app.callback(Output('text3', 'children'),
               [Input('tools', 'value')],
@@ -404,6 +453,34 @@ def update_text3(tools,data):
                                'color': '#dd1e35',
                                'fontSize': 20,},),]
 
+@app.callback(
+
+    Output("data3", "children"),
+    [Input("tools", "value"),],
+    [Input("data", "value"),],)
+
+
+def data3(tools,data):
+    dff1_bu=df1[df1['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
+    dff1_bu=pd.pivot_table(dff1_bu,values=['COMPANY CODE','COUNTRY','ENTITY NAME','DATA'],index=['MDM SOLUTION','ERP','BU'],aggfunc=pd.Series.nunique)
+    dff1_bu=dff1_bu.reset_index()
+    dff2_bu=df2[df2['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
+    dff2_bu=pd.pivot_table(dff2_bu,values=['COMPANY CODE','COUNTRY','ENTITY NAME','DATA'],index=['MDM SOLUTION','ERP','BU'],aggfunc=pd.Series.nunique)
+    dff2_bu=dff2_bu.reset_index()
+    dff3_bu=dff1_bu.append(dff2_bu)
+    dff3_bu=pd.pivot_table(dff3_bu,values=['COMPANY CODE','COUNTRY','ENTITY NAME','DATA'],index=['MDM SOLUTION','ERP','BU'],aggfunc=pd.Series.nunique)
+    dff3_bu=dff3_bu.reset_index()
+
+    if data=='Vendor':
+        return [dbc.Table.from_dataframe(dff1_bu, striped=True, bordered=True, hover=True)]
+    elif data=='Customer':
+        return [dbc.Table.from_dataframe(dff2_bu, striped=True, bordered=True, hover=True)]
+    else:
+        return [dbc.Table.from_dataframe(dff3_bu, striped=True, bordered=True, hover=True)]
+
+
+
+
 
 @app.callback(
     Output("modal3", "is_open"),
@@ -416,9 +493,13 @@ def toggle_modal(n1, n2, is_open):
     return is_open
 
 
+############### TEXT 4
+
 @app.callback(Output('text4', 'children'),
               [Input('tools', 'value')],
               [Input('data', 'value')])
+
+
 
 
 def update_text4(tools,data):
@@ -465,6 +546,31 @@ def update_text4(tools,data):
                                'color': '#dd1e35',
                                'fontSize': 20,},),]
 
+
+@app.callback(
+
+    Output("data4", "children"),
+    [Input("tools", "value"),],
+    [Input("data", "value"),],)
+
+def data4(tools,data):
+    dff1_en=df1[df1['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
+    dff1_en=pd.pivot_table(dff1_en,values=['ERP','BU','COUNTRY','DATA'],index=['MDM SOLUTION','COMPANY CODE','ENTITY NAME'],aggfunc=pd.Series.nunique)
+    dff1_en=dff1_en.reset_index()
+    dff2_en=df2[df2['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
+    dff2_en=pd.pivot_table(dff2_en,values=['ERP','BU','COUNTRY','DATA'],index=['MDM SOLUTION','COMPANY CODE','ENTITY NAME'],aggfunc=pd.Series.nunique)
+    dff2_en=dff2_en.reset_index()
+    dff3_en=dff1_en.append(dff2_en)
+    dff3_en=pd.pivot_table(dff3_en,values=['ERP','BU','COUNTRY','DATA'],index=['MDM SOLUTION','COMPANY CODE','ENTITY NAME'],aggfunc=pd.Series.nunique)
+    dff3_en=dff3_en.reset_index()
+
+    if data=='Vendor':
+        return [dbc.Table.from_dataframe(dff1_en, striped=True, bordered=True, hover=True)]
+    elif data=='Customer':
+        return [dbc.Table.from_dataframe(dff2_en, striped=True, bordered=True, hover=True)]
+    else:
+        return [dbc.Table.from_dataframe(dff3_en, striped=True, bordered=True, hover=True)]
+
 @app.callback(
     Output("modal4", "is_open"),
     [Input("text4", "n_clicks"), Input("close4", "n_clicks")],
@@ -475,7 +581,8 @@ def toggle_modal(n1, n2, is_open):
         return not is_open
     return is_open
 
-# Create pie chart :
+########### Create pie chart :
+
 @app.callback(Output('pie_chart', 'figure'),
               [Input('tools', 'value')])
 
@@ -529,6 +636,9 @@ def update_graph(tools):
         }
 
 
+
+################@ CREATE MAP
+
 @app.callback(
     Output("map", "figure"),
     Input("tools", "value"),
@@ -542,6 +652,4 @@ def updateGraphCB(tools, fig):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
-
     app.run_server(debug=False)
