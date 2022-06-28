@@ -33,7 +33,7 @@ def interactive_multi_plot(vendor,customer, addAll = True):
                                     hoverinfo='text',
                                     hovertext=
                                     '<b>Country</b>: ' + df_ven['COUNTRY'].astype(str) + '<br>' +
-                                    '<b>Tool</b>: ' + df_ven['MDM SOLUTION'].astype(str) + '<br>' +
+                                    '<b>Tool</b>: ' +grx+' '+ df_ven['DATA'].astype(str) + '<br>' +
                                     '<b>BU</b>: ' +  df_ven['BU'].astype(str) + '<br>' +
                                     '<b>Company Code</b>: ' + df_ven['COMPANY CODE'].astype(str) ))
 
@@ -51,13 +51,13 @@ def interactive_multi_plot(vendor,customer, addAll = True):
                                      hoverinfo='text',
                                      hovertext=
                                      '<b>Country</b>: ' + df_cus['COUNTRY'].astype(str) + '<br>' +
-                                     '<b>Tool</b>: ' + df_cus['MDM SOLUTION'].astype(str) + '<br>' +
+                                     '<b>Tool</b>: ' +grx+' '+ df_cus['DATA'].astype(str) + '<br>' +
                                      '<b>BU</b>: ' +  df_cus['BU'].astype(str) + '<br>' +
                                      '<b>Company Code</b>: ' + df_cus['COMPANY CODE'].astype(str) ))
 
 
-    fig.layout.plot_bgcolor = '#010028'
-    fig.layout.paper_bgcolor = '#010028'
+    fig.layout.plot_bgcolor = '#1f2c56'
+    fig.layout.paper_bgcolor = '#1f2c56'
 
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
                       width=900,
@@ -110,7 +110,7 @@ app.layout = html.Div([
         ], className="one-half column", id="title"),
 
         html.Div([
-            html.H6('Data Last Updated: June 24, 2022' ,
+            html.H6('Data Last Updated: June 29, 2022' ,
                     style={'color': 'orange'}),
 
         ], className="one-third column", id='title1'),
@@ -332,11 +332,11 @@ def update_text2(tools,data):
                                  'color': 'white',},),
                 html.P(len(c_ven),
                         style = {'textAlign':'center',
-                                 'color': '#dd1e35',
+                                 'color': '#09F3F0',
                                  'fontSize': 40,},),
                html.P(' Countries',
                       style = {'textAlign':'center',
-                               'color': '#dd1e35',
+                               'color': '#09F3F0',
                                'fontSize': 20,},),]
     elif data=='Customer':
         return [html.H6(children='Implemented in ',
@@ -344,11 +344,11 @@ def update_text2(tools,data):
                                  'color': 'white',},),
                 html.P(len(c_cus) ,
                         style = {'textAlign':'center',
-                                 'color': '#dd1e35',
+                                 'color': '#09F3F0',
                                  'fontSize': 40,},),
                html.P(' Countries',
                       style = {'textAlign':'center',
-                               'color': '#dd1e35',
+                               'color': '#09F3F0',
                                'fontSize': 20,},),]
     else:
         return [html.H6(children='Implemented in ',
@@ -356,11 +356,11 @@ def update_text2(tools,data):
                                  'color': 'white',},),
                 html.P(Countries ,
                         style = {'textAlign':'center',
-                                 'color': '#dd1e35',
+                                 'color': '#09F3F0',
                                  'fontSize': 40,},),
                html.P(' Countries',
                       style = {'textAlign':'center',
-                               'color': '#dd1e35',
+                               'color': '#09F3F0',
                                'fontSize': 20,},),]
 
 @app.callback(
@@ -371,15 +371,14 @@ def update_text2(tools,data):
 
 
 def data2(tools,data):
-    dff1_cnt=df1[df1['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
-    dff1_cnt=pd.pivot_table(dff1_cnt,values=['ERP','BU','COMPANY CODE','ENTITY NAME','DATA'],index=['MDM SOLUTION','COUNTRY'],aggfunc=pd.Series.nunique)
+    dff1_cnt=df1[df1['MDM SOLUTION']==tools][['MDM SOLUTION','COUNTRY']]
+    dff1_cnt=pd.pivot_table(dff1_cnt,index=['MDM SOLUTION','COUNTRY'])
     dff1_cnt=dff1_cnt.reset_index()
-    dff2_cnt=df2[df2['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
-    dff2_cnt=pd.pivot_table(dff2_cnt,values=['ERP','BU','COMPANY CODE','ENTITY NAME','DATA'],index=['MDM SOLUTION','COUNTRY'],aggfunc=pd.Series.nunique)
+    dff2_cnt=df2[df2['MDM SOLUTION']==tools][['MDM SOLUTION','COUNTRY']]
+    dff2_cnt=pd.pivot_table(dff2_cnt,index=['MDM SOLUTION','COUNTRY'])
     dff2_cnt=dff2_cnt.reset_index()
     dff3_cnt=dff1_cnt.append(dff2_cnt)
-    dff3_cnt=pd.pivot_table(dff3_cnt,values=['ERP','BU','COMPANY CODE','ENTITY NAME','DATA'],index=['MDM SOLUTION','COUNTRY'],aggfunc=pd.Series.nunique)
-    dff3_cnt=dff3_cnt.reset_index()
+
 
     if data=='Vendor':
         return [dbc.Table.from_dataframe(dff1_cnt, )]
@@ -461,15 +460,14 @@ def update_text3(tools,data):
 
 
 def data3(tools,data):
-    dff1_bu=df1[df1['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
-    dff1_bu=pd.pivot_table(dff1_bu,values=['COMPANY CODE','COUNTRY','ENTITY NAME','DATA'],index=['MDM SOLUTION','ERP','BU'],aggfunc=pd.Series.nunique)
+    dff1_bu=df1[df1['MDM SOLUTION']==tools][['MDM SOLUTION','ERP']]
+    dff1_bu=pd.pivot_table(dff1_bu,index=['MDM SOLUTION','ERP'])
     dff1_bu=dff1_bu.reset_index()
-    dff2_bu=df2[df2['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
-    dff2_bu=pd.pivot_table(dff2_bu,values=['COMPANY CODE','COUNTRY','ENTITY NAME','DATA'],index=['MDM SOLUTION','ERP','BU'],aggfunc=pd.Series.nunique)
+    dff2_bu=df2[df2['MDM SOLUTION']==tools][['MDM SOLUTION','ERP']]
+    dff2_bu=pd.pivot_table(dff2_bu,index=['MDM SOLUTION','ERP'])
     dff2_bu=dff2_bu.reset_index()
     dff3_bu=dff1_bu.append(dff2_bu)
-    dff3_bu=pd.pivot_table(dff3_bu,values=['COMPANY CODE','COUNTRY','ENTITY NAME','DATA'],index=['MDM SOLUTION','ERP','BU'],aggfunc=pd.Series.nunique)
-    dff3_bu=dff3_bu.reset_index()
+
 
     if data=='Vendor':
         return [dbc.Table.from_dataframe(dff1_bu, striped=True, bordered=True, hover=True)]
@@ -515,11 +513,11 @@ def update_text4(tools,data):
                                  'color': 'white',},),
                 html.P(len(e_ven),
                         style = {'textAlign':'center',
-                                 'color': '#dd1e35',
+                                 'color': '#e55467',
                                  'fontSize': 40,},),
-               html.P(' Entities',
+               html.P(' Company Code',
                       style = {'textAlign':'center',
-                               'color': '#dd1e35',
+                               'color': '#e55467',
                                'fontSize': 20,},),]
     elif data=='Customer':
         return [html.H6(children='Implemented in ',
@@ -527,11 +525,11 @@ def update_text4(tools,data):
                                  'color': 'white',},),
                 html.P(len(e_cus) ,
                         style = {'textAlign':'center',
-                                 'color': '#dd1e35',
+                                 'color': '#e55467',
                                  'fontSize': 40,},),
-               html.P(' Entities',
+               html.P(' Company Code',
                       style = {'textAlign':'center',
-                               'color': '#dd1e35',
+                               'color': '#e55467',
                                'fontSize': 20,},),]
     else:
         return [html.H6(children='Implemented in ',
@@ -539,11 +537,11 @@ def update_text4(tools,data):
                                  'color': 'white',},),
                 html.P(Entities ,
                         style = {'textAlign':'center',
-                                 'color': '#dd1e35',
+                                 'color': '#e55467',
                                  'fontSize': 40,},),
-               html.P(' Entities',
+               html.P(' Company Code',
                       style = {'textAlign':'center',
-                               'color': '#dd1e35',
+                               'color': '#e55467',
                                'fontSize': 20,},),]
 
 
@@ -554,15 +552,14 @@ def update_text4(tools,data):
     [Input("data", "value"),],)
 
 def data4(tools,data):
-    dff1_en=df1[df1['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
-    dff1_en=pd.pivot_table(dff1_en,values=['ERP','BU','COUNTRY','DATA'],index=['MDM SOLUTION','COMPANY CODE','ENTITY NAME'],aggfunc=pd.Series.nunique)
+    dff1_en=df1[df1['MDM SOLUTION']==tools][['MDM SOLUTION','COMPANY CODE']]
+    dff1_en=pd.pivot_table(dff1_en,index=['MDM SOLUTION','COMPANY CODE'])
     dff1_en=dff1_en.reset_index()
-    dff2_en=df2[df2['MDM SOLUTION']==tools][['MDM SOLUTION','ERP','BU','COMPANY CODE','COUNTRY','ENTITY NAME','DATA']]
-    dff2_en=pd.pivot_table(dff2_en,values=['ERP','BU','COUNTRY','DATA'],index=['MDM SOLUTION','COMPANY CODE','ENTITY NAME'],aggfunc=pd.Series.nunique)
+    dff2_en=df2[df2['MDM SOLUTION']==tools][['MDM SOLUTION','COMPANY CODE']]
+    dff2_en=pd.pivot_table(dff2_en,index=['MDM SOLUTION','COMPANY CODE'])
     dff2_en=dff2_en.reset_index()
     dff3_en=dff1_en.append(dff2_en)
-    dff3_en=pd.pivot_table(dff3_en,values=['ERP','BU','COUNTRY','DATA'],index=['MDM SOLUTION','COMPANY CODE','ENTITY NAME'],aggfunc=pd.Series.nunique)
-    dff3_en=dff3_en.reset_index()
+
 
     if data=='Vendor':
         return [dbc.Table.from_dataframe(dff1_en, striped=True, bordered=True, hover=True)]
@@ -652,4 +649,4 @@ def updateGraphCB(tools, fig):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
