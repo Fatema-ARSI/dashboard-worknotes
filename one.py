@@ -8,11 +8,12 @@ import numpy as np
 from jupyter_dash import JupyterDash
 import dash_bootstrap_components as dbc
 from collections import Counter
+import time
 
 
 #####################################################################    EXTRACT DATA    ################################################################################
 
-df=pd.read_excel(r'C:\Users\F8826135\Desktop\dashboard\Data\AP SCOPE.xlsx')
+df=pd.read_excel('AP SCOPE.xlsx')
 
 
 ###############################################################    MAP INPUT to update according the filter    ###############################################
@@ -70,7 +71,7 @@ meta_tags = [{"name": "viewport", "content": "width=device-width"}] ##css design
 external_stylesheets = [meta_tags, font_awesome]
 
 
-app = JupyterDash(__name__, external_stylesheets=external_stylesheets)
+app = JupyterDash(__name__, external_stylesheets=external_stylesheets,suppress_callback_exceptions=True)
 
 app.layout = html.Div([
     html.Div([
@@ -161,7 +162,7 @@ app.layout = html.Div([
 
             , className="card_container big three columns",),
 
-          html.Div([
+           html.Div([
               dbc.Button(id="text3",className = 'card_size'
                       ),
              dbc.Modal([
@@ -402,14 +403,65 @@ def update_text3(tools):
     [Input("tools", "value"),],)
 
 
-def data3(tools):
+def data2(tools):
+    return[dbc.Container([dcc.Store(id="store"),
+                          html.H1("Scanning Tools implemented in countries for " + tools),
+                          html.Hr(),
+                          dbc.Button("Regenerate graphs",color="blue",id="button",className="mb-3",),
+                          dbc.Tabs([dbc.Tab(label="Scatter", tab_id="scatter"),
+                                    dbc.Tab(label="Histograms", tab_id="histogram"),],
+                                   id="tabs",
+                                   active_tab="scatter",),
+                          html.Div(id="tab-content", className="p-4"),])]
 
-    dff3_bu=df[df['ACCOUNTING TOOL']==tools][['ACCOUNTING TOOL','ERP']]
-    dff3_bu=pd.pivot_table(dff3_bu,values=('ERP'),index=['ACCOUNTING TOOL','ERP'],aggfunc='count')
-    dff3_bu=dff3_bu.reset_index()
 
-    return [dbc.Table.from_dataframe(dff3_bu, striped=True, bordered=True, hover=True)]
+@app.callback(
+    Output("tab-content", "children"),
+    [Input("tabs", "active_tab"), Input("store", "data")],
+)
+def render_tab_content(active_tab, data):
+    """
+    This callback takes the 'active_tab' property as input, as well as the
+    stored graphs, and renders the tab content depending on what the value of
+    'active_tab' is.
+    """
+    if active_tab and data is not None:
+        if active_tab == "scatter":
+            return dcc.Graph(figure=data["scatter"])
+        elif active_tab == "histogram":
+            return dbc.Row(
+                [
+                    dbc.Col(dcc.Graph(figure=data["hist_1"]), width=6),
+                    dbc.Col(dcc.Graph(figure=data["hist_2"]), width=6),
+                ]
+            )
+    return "No tab selected"
 
+
+@app.callback(Output("store", "data"),
+             [Input("button", "n_clicks")])
+def generate_graphs(n):
+    """
+    This callback generates three simple graphs from random data.
+    """
+    if not n:
+        # generate empty graphs when app loads
+        return {k: go.Figure(data=[]) for k in ["scatter", "hist_1", "hist_2"]}
+
+    # simulate expensive graph generation process
+    time.sleep(2)
+
+    # generate 100 multivariate normal samples
+    data = np.random.multivariate_normal([0, 0], [[1, 0.5], [0.5, 1]], 100)
+
+    scatter = go.Figure(
+        data=[go.Scatter(x=data[:, 0], y=data[:, 1], mode="markers")]
+    )
+    hist_1 = go.Figure(data=[go.Histogram(x=data[:, 0])])
+    hist_2 = go.Figure(data=[go.Histogram(x=data[:, 1])])
+
+    # save figures in a dictionary for sending to the dcc.Store
+    return {"scatter": scatter, "hist_1": hist_1, "hist_2": hist_2}
 
 
 
@@ -477,18 +529,26 @@ def toggle_modal(n1, n2, is_open):
 def update_graph(tools):
     pie_data=df[df['ACCOUNTING TOOL']==tools][["SCANNING SOLUTION","ACCOUNTING TOOL"]]
 
-    labels=list(Counter(pie_data["SCANNING SOLUTION"]).keys()) # equals to list(set(words))
-    values=list(Counter(pie_data["SCANNING SOLUTION"]).values()) # counts the elements' frequency
+    labels=list(Counter(df["ACCOUNTING TOOL"]).keys()) # equals to list(set(words))
+    values=list(Counter(df["ACCOUNTING TOOL"]).values()) # counts the elements' frequency
     colors = ['#09F3F0',  '#e55467','orange','red']
+    pull=[]
+    for tool in labels:
+        if tool==tools:
+            pull.append(0.2)
+        else:
+            pull.append(0)
 
     return {
         'data': [go.Pie(labels=labels,
                         values=values,
+                        pull=pull,
                         marker=dict(colors=colors),
                         hoverinfo='label+value+percent',
                         textinfo='label+value',
                         textfont=dict(size=13),
-                        hole=.7,
+                        textposition='outside',
+                        hole=.3,
                         rotation=45
                         # insidetextorientation='radial',
 
@@ -554,4 +614,4 @@ def func(n_clicks):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
