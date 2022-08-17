@@ -16,52 +16,7 @@ import time
 df=pd.read_excel('AP SCOPE.xlsx')
 
 
-###############################################################    MAP INPUT to update according the filter    ###############################################
 
-def interactive_multi_plot(data):
-    fig = go.Figure()
-
-    gd = data.groupby(['ACCOUNTING TOOL'])
-    group_name = list(set(data['ACCOUNTING TOOL']))
-
-    for grx in group_name:
-      map_data = gd.get_group(grx)
-
-      fig.add_trace(go.Scattermapbox(lon=map_data ['LNG'],
-                                    lat=map_data ['LAT'],
-                                    name=  grx ,
-                                    mode='markers',
-                                    marker=dict(size=15),
-                                    meta=grx,
-                                    hoverinfo='text',
-                                    hovertext=
-                                    '<b>Country</b>: ' + map_data['COUNTRY'].astype(str) + '<br>' +
-                                    '<b>Tool</b>: ' +grx+'<br>' +
-                                    '<b>BU</b>: ' +  map_data['ERP'].astype(str) + '<br>' +
-                                    '<b>Company Code</b>: ' + map_data['COMPANY CODE'].astype(str) ))
-
-
-
-    fig.layout.plot_bgcolor = '#1f2c56'
-    fig.layout.paper_bgcolor = '#1f2c56'
-
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
-                      width=900,
-                      height=550,
-                      hovermode='closest',
-                      mapbox=dict(accesstoken='pk.eyJ1IjoicXM2MjcyNTI3IiwiYSI6ImNraGRuYTF1azAxZmIycWs0cDB1NmY1ZjYifQ.I1VJ3KjeM-S613FLv3mtkw',),
-                      legend=dict(itemclick= 'toggleothers',
-                                  # when you are clicking an item in legend all that are not in the same group are hidden
-                                  orientation="v",
-                                  x=1.05,
-                                  y=0.8,
-                                  font=dict(color='#fff', size=12,family="AmstelvarAlpha"),
-                                  title='Master Data'))
-
-
-    return fig
-
-fig = interactive_multi_plot(df)
 
 ##############################################################  FRAME CONTAINERS (layout of the dashboard    #####################################################
 
@@ -215,7 +170,7 @@ app.layout = html.Div([
         ], className="create_container four columns", id="cross-filter-options"),
 ## map container
         html.Div([
-                        dcc.Graph(id="map",figure=fig)], className="create_container nine columns"),
+                        dcc.Graph(id="map")], className="create_container nine columns"),
 
                         ], className="row flex-display"),
 
@@ -342,11 +297,11 @@ def update_text2(tools):
                              'color': 'white',},),
             html.P(len(Countries) ,
                    style = {'textAlign':'center',
-                            'color': '#09F3F0',
+                            'color': '#dd1e35',
                             'fontSize': 40,},),
             html.P(' Countries',
                    style = {'textAlign':'center',
-                             'color': '#09F3F0',
+                             'color': '#dd1e35',
                              'fontSize': 20,},),]
 
 @app.callback(
@@ -355,12 +310,81 @@ def update_text2(tools):
 
 
 def data2(tools):
+    names=df[df['ACCOUNTING TOOL']==tools]['SCANNING SOLUTION'].unique()
+    int=len(names)
+    tabs = []
+    for num in range(int):
+        tabs.append(dbc.Tab(
+                            label=names[num],
+                            tab_id=f"tab_{num + 1}"))
 
-    dff2_cnt=df[df['ACCOUNTING TOOL']==tools][['ACCOUNTING TOOL','COUNTRY']]
-    dff2_cnt=pd.pivot_table(dff2_cnt,values=('COUNTRY'),index=['ACCOUNTING TOOL','COUNTRY'],aggfunc='count')
-    dff2_cnt=dff2_cnt.reset_index()
+    return[dbc.Container([
+                          html.H1("Scanning Tools implemented for " + tools),
+                          html.Hr(),
+                          dbc.Tabs(children=tabs,
+                                   id="tabs2",
+                                   active_tab="tab_1",),
+                          html.Div(id="tab-content2", className="p-4"),])]
 
-    return [dbc.Table.from_dataframe(dff2_cnt, )]
+
+@app.callback(
+    Output("tab-content2", "children"),
+    [Input("tabs2", "active_tab"), ],
+    [Input("tools", "value"),])
+
+def render_tab_content(active_tab,tools):
+    dff1=df[df['ACCOUNTING TOOL']==tools][['SCANNING SOLUTION','COUNTRY']]
+    names=dff1['SCANNING SOLUTION'].unique()
+
+
+    """
+    This callback takes the 'active_tab' property as input, as well as the
+    stored graphs, and renders the tab content depending on what the value of
+    'active_tab' is.
+    """
+    if active_tab  is not None:
+        if active_tab == "tab_1":
+            dff1_cn_tab1=dff1[dff1['SCANNING SOLUTION']==names[0]][['SCANNING SOLUTION','COUNTRY']]
+            scn_data_tab1=pd.pivot_table(dff1_cn_tab1,values=('COUNTRY'),index=['SCANNING SOLUTION','COUNTRY'],aggfunc='count')
+            scn_data_tab1=scn_data_tab1.reset_index()
+            scn_cn_tab1=dff1_cn_tab1['COUNTRY'].unique()
+            return [ dbc.Container([dbc.Card(dbc.CardBody([html.H6(children='Implemented in ',
+                                                    style = {'textAlign':'center','color': 'black',},),
+                                            html.P(len(scn_cn_tab1) ,
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 40,},),
+                                            html.P('Countries',
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 20,})]),style={"width":"35rem","float":'center'}),
+                                    html.Hr(),
+                                    dbc.Table.from_dataframe(scn_data_tab1, striped=True, bordered=True, hover=True)])]
+
+        elif active_tab == "tab_2":
+            dff1_cn_tab2=dff1[dff1['SCANNING SOLUTION']==names[0]][['SCANNING SOLUTION','COUNTRY']]
+            scn_data_tab2=pd.pivot_table(dff1_cn_tab2,values=('COUNTRY'),index=['SCANNING SOLUTION','COUNTRY'],aggfunc='count')
+            scn_data_tab2=scn_data_tab2.reset_index()
+            scn_cn_tab2=dff1_cn_tab2['COUNTRY'].unique()
+            return [ dbc.Container([dbc.Card(dbc.CardBody([html.H6(children='Implemented in ',
+                                                    style = {'textAlign':'center','color': 'black',},),
+                                            html.P(len(scn_cn_tab2) ,
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 40,},),
+                                            html.P('Countries',
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 20,})]),style={"width":"35rem","float":'center'}),
+                                    html.Hr(),
+                                    dbc.Table.from_dataframe(scn_data_tab2, striped=True, bordered=True, hover=True)])]
+        elif active_tab == "tab_3":
+            dff1_cn_tab3=dff1[dff1['SCANNING SOLUTION']==names[0]][['SCANNING SOLUTION','COUNTRY']]
+            scn_data_tab3=pd.pivot_table(dff1_cn_tab3,values=('COUNTRY'),index=['SCANNING SOLUTION','COUNTRY'],aggfunc='count')
+            scn_data_tab3=scn_data_tab3.reset_index()
+            scn_cn_tab3=dff1_cn_tab3['COUNTRY'].unique()
+            return [ dbc.Container([dbc.Card(dbc.CardBody([html.H6(children='Implemented in ',
+                                                    style = {'textAlign':'center','color': 'black',},),
+                                            html.P(len(scn_cn_tab3) ,
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 40,},),
+                                            html.P('Countries',
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 20,})]),style={"width":"35rem","float":'center'}),
+                                    html.Hr(),
+                                    dbc.Table.from_dataframe(scn_data_tab3, striped=True, bordered=True, hover=True)])]
+    return "No Scanning Solution"
+
 
 
 @app.callback(
@@ -391,11 +415,11 @@ def update_text3(tools):
                             'color': 'white',},),
             html.P(len(BUs) ,
                     style = {'textAlign':'center',
-                             'color': '#dd1e35',
+                             'color': '#09F3F0',
                              'fontSize': 40,},),
             html.P('BU / ERP',
                    style = {'textAlign':'center',
-                            'color': '#dd1e35',
+                            'color': '#09F3F0',
                             'fontSize': 20,},),]
 
 @app.callback(
@@ -403,66 +427,75 @@ def update_text3(tools):
     [Input("tools", "value"),],)
 
 
-def data2(tools):
-    return[dbc.Container([dcc.Store(id="store"),
-                          html.H1("Scanning Tools implemented in countries for " + tools),
+def scn_data_tab3(tools):
+    names=df[df['ACCOUNTING TOOL']==tools]['SCANNING SOLUTION'].unique()
+    int=len(names)
+    tabs = []
+    for num in range(int):
+        tabs.append(dbc.Tab(
+                            label=names[num],
+                            tab_id=f"tab_{num + 1}"))
+
+    return[dbc.Container([
+                          html.H1("Scanning Tools implemented for " + tools),
                           html.Hr(),
-                          dbc.Button("Regenerate graphs",color="blue",id="button",className="mb-3",),
-                          dbc.Tabs([dbc.Tab(label="Scatter", tab_id="scatter"),
-                                    dbc.Tab(label="Histograms", tab_id="histogram"),],
-                                   id="tabs",
-                                   active_tab="scatter",),
-                          html.Div(id="tab-content", className="p-4"),])]
+                          dbc.Tabs(children=tabs,
+                                   id="tabs3",
+                                   active_tab="tab_1",),
+                          html.Div(id="tab-content3", className="p-4"),])]
 
 
 @app.callback(
-    Output("tab-content", "children"),
-    [Input("tabs", "active_tab"), Input("store", "data")],
-)
-def render_tab_content(active_tab, data):
+    Output("tab-content3", "children"),
+    [Input("tabs3", "active_tab"), ],
+    [Input("tools", "value"),])
+
+def render_tab_content(active_tab,tools):
+    dff1=df[df['ACCOUNTING TOOL']==tools][['SCANNING SOLUTION','ERP']]
+    names=dff1['SCANNING SOLUTION'].unique()
+
+
     """
     This callback takes the 'active_tab' property as input, as well as the
     stored graphs, and renders the tab content depending on what the value of
     'active_tab' is.
     """
-    if active_tab and data is not None:
-        if active_tab == "scatter":
-            return dcc.Graph(figure=data["scatter"])
-        elif active_tab == "histogram":
-            return dbc.Row(
-                [
-                    dbc.Col(dcc.Graph(figure=data["hist_1"]), width=6),
-                    dbc.Col(dcc.Graph(figure=data["hist_2"]), width=6),
-                ]
-            )
-    return "No tab selected"
+    if active_tab  is not None:
+        if active_tab == "tab_1":
+            scn_data_tab1=dff1[dff1['SCANNING SOLUTION']==names[0]][['SCANNING SOLUTION','ERP']]
+            scn_erp_tab1=scn_data_tab1['ERP'].unique()
+            return [ dbc.Container([dbc.Card(dbc.CardBody([html.H6(children='Implemented in ',
+                                                    style = {'textAlign':'center','color': 'black',},),
+                                            html.P(len(scn_erp_tab1) ,
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 40,},),
+                                            html.P('BU / ERP',
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 20,})]),style={"width":"35rem","float":'center'}),
+                                    html.Hr(),
+                                    dbc.Table.from_dataframe(scn_data_tab1, striped=True, bordered=True, hover=True)])]
 
-
-@app.callback(Output("store", "data"),
-             [Input("button", "n_clicks")])
-def generate_graphs(n):
-    """
-    This callback generates three simple graphs from random data.
-    """
-    if not n:
-        # generate empty graphs when app loads
-        return {k: go.Figure(data=[]) for k in ["scatter", "hist_1", "hist_2"]}
-
-    # simulate expensive graph generation process
-    time.sleep(2)
-
-    # generate 100 multivariate normal samples
-    data = np.random.multivariate_normal([0, 0], [[1, 0.5], [0.5, 1]], 100)
-
-    scatter = go.Figure(
-        data=[go.Scatter(x=data[:, 0], y=data[:, 1], mode="markers")]
-    )
-    hist_1 = go.Figure(data=[go.Histogram(x=data[:, 0])])
-    hist_2 = go.Figure(data=[go.Histogram(x=data[:, 1])])
-
-    # save figures in a dictionary for sending to the dcc.Store
-    return {"scatter": scatter, "hist_1": hist_1, "hist_2": hist_2}
-
+        elif active_tab == "tab_2":
+            scn_data_tab2=dff1[dff1['SCANNING SOLUTION']==names[1]][['SCANNING SOLUTION','ERP']]
+            scn_erp_tab2=scn_data_tab2['ERP'].unique()
+            return [ dbc.Container([dbc.Card(dbc.CardBody([html.H6(children='Implemented in ',
+                                                    style = {'textAlign':'center','color': 'black',},),
+                                            html.P(len(scn_erp_tab2) ,
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 40,},),
+                                            html.P('BU / ERP',
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 20,})]),style={"width":"35rem","float":'center'}),
+                                    html.Hr(),
+                                    dbc.Table.from_dataframe(scn_data_tab2, striped=True, bordered=True, hover=True)])]
+        elif active_tab == "tab_3":
+            scn_data_tab3=dff1[dff1['SCANNING SOLUTION']==names[2]][['SCANNING SOLUTION','ERP']]
+            scn_erp_tab3=scn_data_tab3['ERP'].unique()
+            return [ dbc.Container([dbc.Card(dbc.CardBody([html.H6(children='Implemented in ',
+                                                    style = {'textAlign':'center','color': 'black',},),
+                                            html.P(len(scn_erp_tab3) ,
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 40,},),
+                                            html.P('BU / ERP',
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 20,})]),style={"width":"35rem","float":'center'}),
+                                    html.Hr(),
+                                    dbc.Table.from_dataframe(scn_data_tab3, striped=True, bordered=True, hover=True)])]
+    return "No Scanning Solution"
 
 
 
@@ -504,12 +537,81 @@ def update_text4(tools):
     Output("data4", "children"),
     [Input("tools", "value"),],)
 
-def data4(tools):
-    dff_en=df[df['ACCOUNTING TOOL']==tools][['ACCOUNTING TOOL','COMPANY CODE']]
-    dff_en=pd.pivot_table(dff_en,values=('COMPANY CODE'),index=['ACCOUNTING TOOL','COMPANY CODE'],aggfunc='count')
-    dff_en=dff_en.reset_index()
 
-    return [dbc.Table.from_dataframe(dff_en, striped=True, bordered=True, hover=True)]
+def data4(tools):
+    names=df[df['ACCOUNTING TOOL']==tools]['SCANNING SOLUTION'].unique()
+    int=len(names)
+    tabs = []
+    for num in range(int):
+        tabs.append(dbc.Tab(
+                            label=names[num],
+                            tab_id=f"tab_{num + 1}"))
+
+    return[dbc.Container([
+                          html.H1("Scanning Tools implemented for " + tools),
+                          html.Hr(),
+                          dbc.Button("Regenerate graphs",color="blue",id="button4",className="mb-3",),
+                          html.Hr(),
+                          dbc.Tabs(children=tabs,
+                                   id="tabs4",
+                                   active_tab="tab_1",),
+                          html.Div(id="tab-content4", className="p-4"),])]
+
+
+@app.callback(
+    Output("tab-content4", "children"),
+    [Input("tabs4", "active_tab"), ],
+    [Input("tools", "value"),])
+
+def render_tab_content(active_tab,tools):
+    dff1=df[df['ACCOUNTING TOOL']==tools][['SCANNING SOLUTION','COMPANY CODE','ENTITY NAME']]
+    names=dff1['SCANNING SOLUTION'].unique()
+
+
+    """
+    This callback takes the 'active_tab' property as input, as well as the
+    stored graphs, and renders the tab content depending on what the value of
+    'active_tab' is.
+    """
+    if active_tab  is not None:
+        if active_tab == "tab_1":
+            scn_data_tab1=dff1[dff1['SCANNING SOLUTION']==names[0]][['SCANNING SOLUTION','COMPANY CODE','ENTITY NAME']]
+            scn_en_tab1=scn_data_tab1['COMPANY CODE'].unique()
+            return [ dbc.Container([dbc.Card(dbc.CardBody([html.H6(children='Implemented in ',
+                                                    style = {'textAlign':'center','color': 'black',},),
+                                            html.P(len(scn_en_tab1) ,
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 40,},),
+                                            html.P('BU / ERP',
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 20,})]),style={"width":"35rem","float":'center'}),
+                                    html.Hr(),
+                                    dbc.Table.from_dataframe(scn_data_tab1, striped=True, bordered=True, hover=True)])]
+
+        elif active_tab == "tab_2":
+            scn_data_tab2=dff1[dff1['SCANNING SOLUTION']==names[1]][['SCANNING SOLUTION','COMPANY CODE','ENTITY NAME']]
+            scn_en_tab2=scn_data_tab2['COMPANY CODE'].unique()
+            return [ dbc.Container([dbc.Card(dbc.CardBody([html.H6(children='Implemented in ',
+                                                    style = {'textAlign':'center','color': 'black',},),
+                                            html.P(len(scn_en_tab2) ,
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 40,},),
+                                            html.P('BU / ERP',
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 20,})]),style={"width":"35rem","float":'center'}),
+                                    html.Hr(),
+                                    dbc.Table.from_dataframe(scn_data_tab2, striped=True, bordered=True, hover=True)])]
+        elif active_tab == "tab_3":
+            scn_data_tab3=dff1[dff1['SCANNING SOLUTION']==names[2]][['SCANNING SOLUTION','COMPANY CODE','ENTITY NAME']]
+            scn_en_tab3=scn_data_tab3['COMPANY CODE'].unique()
+            return [ dbc.Container([dbc.Card(dbc.CardBody([html.H6(children='Implemented in ',
+                                                    style = {'textAlign':'center','color': 'black',},),
+                                            html.P(len(scn_en_tab3) ,
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 40,},),
+                                            html.P('BU / ERP',
+                                                    style = {'textAlign':'center','color': '#09F3F0','fontSize': 20,})]),style={"width":"35rem","float":'center'}),
+                                    html.Hr(),
+                                    dbc.Table.from_dataframe(scn_data_tab3, striped=True, bordered=True, hover=True)])]
+    return "No Scanning Solution"
+
+
+
 
 @app.callback(
     Output("modal4", "is_open"),
@@ -527,11 +629,10 @@ def toggle_modal(n1, n2, is_open):
               [Input('tools', 'value')])
 
 def update_graph(tools):
-    pie_data=df[df['ACCOUNTING TOOL']==tools][["SCANNING SOLUTION","ACCOUNTING TOOL"]]
 
     labels=list(Counter(df["ACCOUNTING TOOL"]).keys()) # equals to list(set(words))
     values=list(Counter(df["ACCOUNTING TOOL"]).values()) # counts the elements' frequency
-    colors = ['#09F3F0',  '#e55467','orange','red']
+    colors = ['#09F3F0',  '#e55467','orange','#dd1e35']
     pull=[]
     for tool in labels:
         if tool==tools:
@@ -591,14 +692,39 @@ def update_graph(tools):
 
 @app.callback(
     Output("map", "figure"),
-    Input("tools", "value"),
-    State("map", "figure"),
-)
-def updateGraphCB(tools, fig):
-    # filter traces...
-    fig = go.Figure(fig).update_traces(visible=False)
-    fig.update_traces(visible=True, selector={"meta":tools})
+    Input("tools", "value"),)
+
+def updateGraphCB(tools):
+    map_data=df[df['ACCOUNTING TOOL']==tools][["ACCOUNTING TOOL","SCANNING SOLUTION","ERP","LAT","LNG","COMPANY CODE","ENTITY NAME","COUNTRY","FINTECH"]]
+
+    fig = go.Figure()
+    fig.add_trace(go.Scattermapbox(lon=map_data ['LNG'],
+                                   lat=map_data ['LAT'],
+                                   name=  tools ,
+                                   mode='markers',
+                                   marker=dict(size=15),
+                                   meta=tools,
+                                   hoverinfo='text',
+                                   hovertext=
+                                    '<b>Country</b>: ' + map_data['COUNTRY'].astype(str) + '<br>' +
+                                    '<b>Tool</b>: ' +tools+'<br>' +
+                                    '<b>BU</b>: ' +  map_data['ERP'].astype(str) + '<br>' +
+                                    '<b>Company Code</b>: ' + map_data['COMPANY CODE'].astype(str) ))
+
+
+
+    fig.layout.plot_bgcolor = '#1f2c56'
+    fig.layout.paper_bgcolor = '#1f2c56'
+
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                      width=900,
+                      height=550,
+                      hovermode='closest',
+                      mapbox=dict(accesstoken='pk.eyJ1IjoicXM2MjcyNTI3IiwiYSI6ImNraGRuYTF1azAxZmIycWs0cDB1NmY1ZjYifQ.I1VJ3KjeM-S613FLv3mtkw',),)
+
+
     return fig
+
 
 ############################# download excel
 
@@ -614,4 +740,5 @@ def func(n_clicks):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
+
