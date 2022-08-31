@@ -1,19 +1,20 @@
 body {
   background-color: #D3D3D3;
   margin: 0%;
-  font-family : AmstelvarAlpha;
+  font-family : Computer Modern;
 }
 
 .card_size {
    background-color: #1f2c56;
    width: 250px;
    height: 160px;
-   font-family :AmstelvarAlpha;
+   font-family :Computer Modern;
 }
 .card_container {
   border-radius: 5px;
   background-color: #1f2c56;
-  margin: 30px;
+  margin: 20px;
+  text-align: center;
   padding: 5px;
   position: relative;
   box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
@@ -26,7 +27,7 @@ body {
   margin: 15px;
   padding: 15px;
   position: relative;
-  font-family :AmstelvarAlpha;
+  font-family :Computer Modern;
   box-shadow: 2px 2px 2px #1f2c56;
 }
 
@@ -36,25 +37,31 @@ body {
   margin: 0 auto;
   padding: 15px;
   position: relative;
-  font-family :AmstelvarAlpha;
+  font-family :Computer Modern;
   box-shadow: 2px 2px 2px #1f2c56;
 }
 .create_container2 {
   border-radius: 5px;
   background-color: #D3D3D3;
-  margin: 0 auto;
+  margin: auto;
   padding: 15px;
   position: relative;
   }
 
+.create_container3 {
+  margin: 0 auto;
+  position: relative;
+  margin-bottom: 15px;
+}
+
 .div1 {
   width: 1300px;
   margin: 30px;
-  height: 50px;
+  height: 70px;
   border-radius: 5px;
   position: relative;
   text-align: center;
-  font-family :AmstelvarAlpha;
+  font-family :Computer Modern;
   background-color: #FFFFFF;
   border: 3px solid #1f2c56;}
 
@@ -91,7 +98,7 @@ body {
   display: flex;
 }
 
-#header {
+#header1 {
   align-items: center;
 }
 
@@ -108,9 +115,13 @@ body {
 
 #title {
   text-align: center;
-}
+   margin-top:30px;}
 
 #title1 {
+  text-align: center;
+  margin-top:30px;}
+
+#filter {
   text-align: center;
 }
 
@@ -172,6 +183,7 @@ body {
           overflow-x: hidden;
           overflow-y: auto;
           outline: 0;
+		  
         }
 
         .modal-dialog {
@@ -224,6 +236,7 @@ body {
           border: 1px solid rgba(0, 0, 0, 0.2);
           border-radius: 0.3rem;
           outline: 0;
+		  background-color: #fff;
         }
 
         .modal-backdrop {
@@ -260,6 +273,7 @@ body {
         .modal-title {
           margin-bottom: 0;
           line-height: 1.5;
+
         }
 
         .modal-body {
@@ -309,7 +323,7 @@ body {
         }
         @media (min-width: 1200px) {
           .modal-xl {
-            max-width: 1140px;
+            max-width: 1160px;
           }
         }
         .modal-fullscreen {
@@ -762,7 +776,7 @@ body {
 .nav-link {
   display: block;
   padding: 0.5rem 1rem;
-  color: #0d6efd;
+  color: #1f2c56;
   text-decoration: none;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
@@ -772,7 +786,7 @@ body {
   }
 }
 .nav-link:hover, .nav-link:focus {
-  color: #0a58ca;
+  color: #1f2c56;
 }
 .nav-link.disabled {
   color: #6c757d;
@@ -801,8 +815,9 @@ body {
 }
 .nav-tabs .nav-link.active,
 .nav-tabs .nav-item.show .nav-link {
-  color: #495057;
-  background-color: #fff;
+  color: #dee2e6;
+   font-weight: bolder;
+  background-color: #1f2c56;
   border-color: #dee2e6 #dee2e6 #fff;
 }
 .nav-tabs .dropdown-menu {
@@ -1333,10 +1348,19 @@ body {
   flex-direction: column;
   min-width: 0;
   word-wrap: break-word;
-  background-color: #fff;
+  background-color: #1f2c56;
   background-clip: border-box;
   border: 1px solid rgba(0, 0, 0, 0.125);
-  border-radius: 0.25rem;
+  font-family :AmstelvarAlpha;
+  border-radius: 5px;
+  margin: auto;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  text-align: center;
+  padding: 5px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  width:35rem;
+  
 }
 .card > hr {
   margin-right: 0;
@@ -1506,8 +1530,10 @@ hr:not([size]) {
   width: 100%;
   padding-right: var(--bs-gutter-x, 0.75rem);
   padding-left: var(--bs-gutter-x, 0.75rem);
-  margin-right: auto;
-  margin-left: auto;
+  margin-right: 0px;
+  margin-left: 0px;
+  background-color: #fff;
+  
 }
 
 @media (min-width: 576px) {
@@ -1527,7 +1553,7 @@ hr:not([size]) {
 }
 @media (min-width: 1200px) {
   .container-xl, .container-lg, .container-md, .container-sm, .container {
-    max-width: 1140px;
+    max-width: 1150px;
   }
 }
 @media (min-width: 1400px) {
