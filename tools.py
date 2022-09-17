@@ -21,8 +21,8 @@ df['COMPANY CODE']=df['COMPANY CODE'].map(str)
 layout = html.Div([
 
 
-    
-    
+
+
 #################################################### FILTER CONTAINER   ##################################################
 
     html.Div([
@@ -33,7 +33,7 @@ layout = html.Div([
                          clearable=False,
                          value='Medius',
                          placeholder='Please select your tool',
-                         options=[{'label': i, 'value': i}for i in (df['ACCOUNTING TOOL'].unique())], 
+                         options=[{'label': i, 'value': i}for i in (df['ACCOUNTING TOOL'].unique())],
                          className='dcc_compon'),],
                     className = "create_container1 four columns", style = {'margin-bottom': '0px'}),], className = "row flex-display"),
 
@@ -47,23 +47,23 @@ layout = html.Div([
     html.Div([html.Div([
         dbc.Button(id= "text1",className = 'card_size'),
         dbc.Modal([dbc.ModalHeader(
-                                   html.Div(className="row", 
-                                            children=[html.Div(className='six columns', 
+                                   html.Div(className="row",
+                                            children=[html.Div(className='six columns',
                                                                children=[dbc.Label("Select Column",style={'font-weight': 'bold','color':'#1f2c56','fontSize': 20}),
                                                                          dcc.Dropdown(id='select',
                                                                                       options=['SCANNING SOLUTION','ERP','COMPANY CODE','COUNTRY','ENTITY NAME'],
-                                                                                      clearable=True, )] , 
+                                                                                      clearable=True, )] ,
                                                                          style={'width': '500px'}),
-                                                    html.Div(className='six columns', 
+                                                    html.Div(className='six columns',
                                                              children=[dbc.Label("Select Value",style={'font-weight': 'bold','color':'#1f2c56','fontSize': 20}),
-                                                                       dcc.Dropdown(id='dropdown', 
+                                                                       dcc.Dropdown(id='dropdown',
                                                                                     multi=True,
-                                                                                    clearable=False, )],                                                       
+                                                                                    clearable=False, )],
                                                                         style={'width': '500px'})],
                                           style=dict(display='flex')),close_button=False),
 
-                   dbc.ModalBody(dbc.Container([html.Div(id='table')])),                                                                      
-                                
+                   dbc.ModalBody(dbc.Container([html.Div(id='table')])),
+
                    dbc.ModalFooter(dbc.Button("Close", id="close1",style={'background-color':'#1f2c56','color':'white'}),),],
                  id="modal1",
                  centered=True,
@@ -121,13 +121,13 @@ layout = html.Div([
 ################################################## GRAPHS ##########################################
 
     html.Div([
-    
+
 ############################################## PIE CHART CONTAINER ############################
 
         html.Div([dcc.Graph(id='pie_chart',
                             config={'displayModeBar': 'hover'}),
                             ], className="create_container four columns", id="cross-filter-options"),
-                            
+
 ############################################### MAP CONTAINER  ####################################################
 
         html.Div([dcc.Graph(id="map")], className="create_container nine columns"),], className="row flex-display"),
@@ -208,42 +208,42 @@ def update_text1(tools):
                                 'fontSize': 20,},),]
 
 ############################################   MODAL1 #################################################
-                   
+
 @app.callback(Output('dropdown', 'options'),
-             [Input("tools", "value"),], 
+             [Input("tools", "value"),],
              [Input("select", "value")],)
-             
+
 def output(tools,select):
     dff1=df[df['ACCOUNTING TOOL']==tools][['ACCOUNTING TOOL','SCANNING SOLUTION','ERP','COMPANY CODE','COUNTRY','ENTITY NAME']]
     if select is None:
         options=list(set(dff1['ACCOUNTING TOOL']))
         return [{'label': i, 'value': i} for i in options]
-        
+
     options=list(set(dff1[select]))
     return [{'label': i, 'value': i} for i in options]
 
 @app.callback(Output('table', 'children'),
-             [Input("tools", "value"),], 
+             [Input("tools", "value"),],
              [Input("select", "value")],
              [Input("dropdown", "value")],)
-             
+
 def output_table(tools,select,dropdown):
     dff1=df[df['ACCOUNTING TOOL']==tools][['ACCOUNTING TOOL','SCANNING SOLUTION','ERP','COMPANY CODE','COUNTRY','ENTITY NAME']]
-    
+
     if select is not None:
         if dropdown is not None:
            dff = dff1[dff1[select].str.contains('|'.join(dropdown),na=False)]
-        
+
            return [dbc.Table.from_dataframe(dff, striped=True, bordered=True, hover=True)]
     return [dbc.Table.from_dataframe(dff1, striped=True, bordered=True, hover=True)]
-         
+
 
 @app.callback(
     Output("modal1", "is_open"),
     [Input("text1", "n_clicks"),
     Input("close1", "n_clicks"),],
     [State("modal1", "is_open")],)
-    
+
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
@@ -269,44 +269,44 @@ def update_text2(tools):
                    style = {'textAlign':'center',
                              'color': '#dd1e35',
                              'fontSize': 20,},),]
-############################################   MODAL2 ################################################# 
+############################################   MODAL2 #################################################
 @app.callback(Output("data2", "children"),
               [Input("tools", "value"),],)
 
 def data2(tools):
-    
+
     dff1=df[df['ACCOUNTING TOOL']==tools][['ACCOUNTING TOOL','SCANNING SOLUTION','COUNTRY']]
-    
+
     names=dff1['SCANNING SOLUTION'].unique()
     def tabdata(number):
         dff1_tab=dff1[dff1['SCANNING SOLUTION']==names[number]][['SCANNING SOLUTION','COUNTRY']]
-        
+
         scn_data_tab=pd.pivot_table(dff1_tab,values=('COUNTRY'),index=['SCANNING SOLUTION','COUNTRY'],aggfunc='count')
         scn_data_tab=scn_data_tab.reset_index()
-        
+
         scn_tab=dff1_tab['COUNTRY'].unique()
-        
+
         return [dbc.Container([
                               dbc.Row([
                                         dbc.Col(dbc.Card(dbc.CardBody([html.H6(children='IMPLEMENTED IN ',
                                                                                style = {'textAlign':'center','color': 'white','fontSize': 25,},),
                                                                        html.P(f"{len(scn_tab)} Country(ies)" ,
                                                                               style = {'textAlign':'center','color': '#09F3F0','fontSize': 35,})]))),
-                                        ]),          
+                                        ]),
                                html.Hr(),
                                dbc.Row([dbc.Table.from_dataframe(scn_data_tab, striped=True, bordered=True, hover=True)])])]
-    
-    
+
+
     dff1_notab=pd.pivot_table(dff1[['ACCOUNTING TOOL','COUNTRY']],values=('COUNTRY'),index=['ACCOUNTING TOOL','COUNTRY'],aggfunc='count')
     dff1_notab=dff1_notab.reset_index()
-    
+
     tabs = []
     for num in range(len(names)):
         tabs.append(dbc.Tab(
                             label=names[num],
                             tab_id=f"tab_{num + 1}",
                             children=tabdata(num)))
-                                              
+
     if np.any(names == 'None')==True:
         return [dbc.Table.from_dataframe(dff1_notab, striped=True, bordered=True, hover=True)]
     else:
@@ -349,45 +349,45 @@ def update_text3(tools):
                    style = {'textAlign':'center',
                             'color': '#09F3F0',
                             'fontSize': 20,},),]
-                            
+
 ############################################   MODAL3 #################################################
 @app.callback(Output("data3", "children"),
               [Input("tools", "value"),],)
 
 def data3(tools):
-    
+
     dff1=df[df['ACCOUNTING TOOL']==tools][['ACCOUNTING TOOL','SCANNING SOLUTION','ERP']]
-    
+
     names=dff1['SCANNING SOLUTION'].unique()
     def tabdata(number):
         dff1_tab=dff1[dff1['SCANNING SOLUTION']==names[number]][['SCANNING SOLUTION','ERP']]
-        
+
         scn_data_tab=pd.pivot_table(dff1_tab,values=('ERP'),index=['SCANNING SOLUTION','ERP'],aggfunc='count')
         scn_data_tab=scn_data_tab.reset_index()
-        
+
         scn_tab=dff1_tab['ERP'].unique()
-        
+
         return [dbc.Container([
                               dbc.Row([
                                         dbc.Col(dbc.Card(dbc.CardBody([html.H6(children='IMPLEMENTED FOR ',
                                                                                style = {'textAlign':'center','color': 'white','fontSize': 25,},),
                                                                        html.P(f"{len(scn_tab)} ERP(s)" ,
                                                                               style = {'textAlign':'center','color': '#09F3F0','fontSize': 35,})]))),
-                                        ]),          
+                                        ]),
                                html.Hr(),
                                dbc.Row([dbc.Table.from_dataframe(scn_data_tab, striped=True, bordered=True, hover=True)])])]
-    
-    
+
+
     dff1_notab=pd.pivot_table(dff1[['ACCOUNTING TOOL','ERP']],values=('ERP'),index=['ACCOUNTING TOOL','ERP'],aggfunc='count')
     dff1_notab=dff1_notab.reset_index()
-    
+
     tabs = []
     for num in range(len(names)):
         tabs.append(dbc.Tab(
                             label=names[num],
                             tab_id=f"tab_{num + 1}",
                             children=tabdata(num)))
-                                              
+
     if np.any(names == 'None')==True:
         return [dbc.Table.from_dataframe(dff1_notab, striped=True, bordered=True, hover=True)]
     else:
@@ -400,10 +400,10 @@ def data3(tools):
 
 @app.callback(
     Output("modal3", "is_open"),
-    [Input("text3", "n_clicks"), 
+    [Input("text3", "n_clicks"),
     Input("close3", "n_clicks")],
     [State("modal3", "is_open")],)
-    
+
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
@@ -430,8 +430,8 @@ def update_text4(tools):
                    style = {'textAlign':'center',
                             'color': '#e55467',
                             'fontSize': 20,},),]
-                            
-                            
+
+
 ############################################   MODAL4 #################################################
 
 @app.callback(Output("data4", "children"),
@@ -439,39 +439,39 @@ def update_text4(tools):
 
 
 def data4(tools):
-    
+
     dff1=df[df['ACCOUNTING TOOL']==tools][['ACCOUNTING TOOL','SCANNING SOLUTION','COMPANY CODE']]
-    
+
     names=dff1['SCANNING SOLUTION'].unique()
     def tabdata(number):
         dff1_tab=dff1[dff1['SCANNING SOLUTION']==names[number]][['SCANNING SOLUTION','COMPANY CODE']]
-        
+
         scn_data_tab=pd.pivot_table(dff1_tab,values=('COMPANY CODE'),index=['SCANNING SOLUTION','COMPANY CODE'],aggfunc='count')
         scn_data_tab=scn_data_tab.reset_index()
-        
+
         scn_tab=dff1_tab['COMPANY CODE'].unique()
-        
+
         return [dbc.Container([
                               dbc.Row([
                                         dbc.Col(dbc.Card(dbc.CardBody([html.H6(children='IMPLEMENTED IN ',
                                                                                style = {'textAlign':'center','color': 'white','fontSize': 25,},),
                                                                        html.P(f"{len(scn_tab)} Entities" ,
                                                                               style = {'textAlign':'center','color': '#09F3F0','fontSize': 35,})]))),
-                                        ]),          
+                                        ]),
                                html.Hr(),
                                dbc.Row([dbc.Table.from_dataframe(scn_data_tab, striped=True, bordered=True, hover=True)])])]
-    
-    
+
+
     dff1_notab=pd.pivot_table(dff1[['ACCOUNTING TOOL','COMPANY CODE']],values=('COMPANY CODE'),index=['ACCOUNTING TOOL','COMPANY CODE'],aggfunc='count')
     dff1_notab=dff1_notab.reset_index()
-    
+
     tabs = []
     for num in range(len(names)):
         tabs.append(dbc.Tab(
                             label=names[num],
                             tab_id=f"tab_{num + 1}",
                             children=tabdata(num)))
-                                              
+
     if np.any(names == 'None')==True:
         return [dbc.Table.from_dataframe(dff1_notab, striped=True, bordered=True, hover=True)]
     else:
@@ -487,7 +487,7 @@ def data4(tools):
               [Input("text4", "n_clicks"),
               Input("close4", "n_clicks")],
               [State("modal4", "is_open")],)
-              
+
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
@@ -503,7 +503,7 @@ def update_graph(tools):
     labels=list(Counter(df["ACCOUNTING TOOL"]).keys()) # equals to list(set(words))
     values=list(Counter(df["ACCOUNTING TOOL"]).values()) # counts the elements' frequency
     colors = ['#09F3F0',  '#e55467','orange','#dd1e35']
-    
+
     line_color=[]
     pull=[]
     for tool in labels:
@@ -513,7 +513,7 @@ def update_graph(tools):
         else:
             pull.append(0)
             line_color.append('#1f2c56')
-            
+
 
     return {
         'data': [go.Pie(labels=labels,
@@ -563,7 +563,7 @@ def update_graph(tools):
 
 def updateGraphCB(tools):
     map_data=df[df['ACCOUNTING TOOL']==tools][["ACCOUNTING TOOL","SCANNING SOLUTION","ERP","LAT","LNG","COMPANY CODE","ENTITY NAME","COUNTRY","FINTECH"]]
-    
+
     if np.any(map_data["SCANNING SOLUTION"] == 'None')==True:
         name=' '
     else:
@@ -603,9 +603,7 @@ def updateGraphCB(tools):
 @app.callback(Output("download-dataframe-xlsx", "data"),
               Input("btn_xlsx", "n_clicks"),
               prevent_initial_call=True,)
-              
+
 def func(n_clicks):
     df=df[["ACCOUNTING TOOL","SCANNING SOLUTION","ERP","COMPANY CODE","ENTITY NAME","COUNTRY","FINTECH"]]
     return dcc.send_data_frame(df.to_excel, "MDM_DATA.xlsx", sheet_name="Customer - Vendor",index=False)
-
-
