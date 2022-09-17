@@ -19,19 +19,19 @@ df['COMPANY CODE']=df['COMPANY CODE'].map(str)
 
 
 layout = html.Div([
-  
-    
+
+
 #################################################### FILTER CONTAINER   ##################################################
 
     html.Div([
         html.Div([
             html.P('Select SSC', className = 'fix_label', style = {'color': 'white', 'margin-top': '2px'}),
-            dcc.Dropdown(id='tools_1',
+            dcc.Dropdown(id='ssc',
                          multi=False,
                          clearable=False,
                          value='SSC Breda',
                          placeholder='Please select your SSC',
-                         options=[{'label': i, 'value': i}for i in (df['SSC'].unique())],  
+                         options=[{'label': i, 'value': i} for i in (df['SSC'].unique())],
                          className='dcc_compon'),],
                     className = "create_container1 four columns", style = {'margin-bottom': '0px'}),], className = "row flex-display"),
 
@@ -45,23 +45,23 @@ layout = html.Div([
     html.Div([html.Div([
         dbc.Button(id= "text1_1",className = 'card_size'),
         dbc.Modal([dbc.ModalHeader(
-                                   html.Div(className="row", 
-                                            children=[html.Div(className='six columns', 
+                                   html.Div(className="row",
+                                            children=[html.Div(className='six columns',
                                                                children=[dbc.Label("Select Column",style={'font-weight': 'bold','color':'#1f2c56','fontSize': 20}),
                                                                          dcc.Dropdown(id='select_1',
                                                                                       options=['ACCOUNTING TOOL','SCANNING SOLUTION','ERP','COMPANY CODE','COUNTRY','ENTITY NAME'],
-                                                                                      clearable=True, )] , 
+                                                                                      clearable=True, )] ,
                                                                          style={'width': '500px'}),
-                                                    html.Div(className='six columns', 
+                                                    html.Div(className='six columns',
                                                              children=[dbc.Label("Select Value",style={'font-weight': 'bold','color':'#1f2c56','fontSize': 20}),
-                                                                       dcc.Dropdown(id='dropdown1_1', 
+                                                                       dcc.Dropdown(id='dropdown1_1',
                                                                                     multi=True,
-                                                                                    clearable=False, )],                                                       
+                                                                                    clearable=False, )],
                                                                         style={'width': '500px'})],
                                           style=dict(display='flex')),close_button=False),
 
-                   dbc.ModalBody(dbc.Container([html.Div(id='table_1')])),                                                                      
-                                
+                   dbc.ModalBody(dbc.Container([html.Div(id='table_1')])),
+
                    dbc.ModalFooter(dbc.Button("Close", id="close1_1",style={'background-color':'#1f2c56','color':'white'}),),],
                  id="modal1_1",
                  centered=True,
@@ -75,12 +75,11 @@ layout = html.Div([
           html.Div([
               dbc.Button(id="text2_1",className = 'card_size'),
               dbc.Modal([dbc.ModalHeader(
-                                   html.Div(className="row", 
-                                            children=[html.Div(className='six columns', 
+                                   html.Div(className="row",
+                                            children=[html.Div(className='six columns',
                                                                children=[dbc.Label("Select Tool",style={'font-weight': 'bold','color':'#1f2c56','fontSize': 20}),
-                                                                         dcc.Dropdown(id='dropdown2_1', 
-                                                                                     multi=True,
-                                                                                     clearable=False, )],                                                       
+                                                                         dcc.Dropdown(id='dropdown2_1',
+                                                                                     clearable=True,)],
                                                                          style={'width': '500px'})],
                                                       style=dict(display='flex')),close_button=False),
 
@@ -97,7 +96,14 @@ layout = html.Div([
 
            html.Div([
               dbc.Button(id="text3_1",className = 'card_size' ),
-             dbc.Modal([
+             dbc.Modal([dbc.ModalHeader(
+                                  html.Div(className="row",
+                                           children=[html.Div(className='six columns',
+                                                              children=[dbc.Label("Select Tool",style={'font-weight': 'bold','color':'#1f2c56','fontSize': 20}),
+                                                                        dcc.Dropdown(id='dropdown3_1',
+                                                                                    clearable=True, )],
+                                                                        style={'width': '500px'})],
+                                                     style=dict(display='flex')),close_button=False),
 
                         dbc.ModalBody(id='data3_1'),
                         dbc.ModalFooter(dbc.Button("Close", id="close3_1",style={'background-color':'#1f2c56','color':'white'}),),],
@@ -112,7 +118,14 @@ layout = html.Div([
 
           html.Div([
               dbc.Button(id="text4_1",className = 'card_size'),
-              dbc.Modal([dbc.ModalBody(id='data4_1'),
+              dbc.Modal([dbc.ModalHeader(
+                                   html.Div(className="row",
+                                            children=[html.Div(className='six columns',
+                                                               children=[dbc.Label("Select Tool",style={'font-weight': 'bold','color':'#1f2c56','fontSize': 20}),
+                                                                         dcc.Dropdown(id='dropdown4_1',
+                                                                                     clearable=True,)],
+                                                                         style={'width': '500px'})],
+                                                      style=dict(display='flex')),close_button=False),dbc.ModalBody(id='data4_1'),
                          dbc.ModalFooter(dbc.Button("Close", id="close4_1",style={'background-color':'#1f2c56','color':'white'}),),],
                        id="modal4_1",
                        centered=True,
@@ -127,13 +140,13 @@ layout = html.Div([
 ################################################## GRAPHS ##########################################
 
     html.Div([
-    
+
 ############################################## PIE CHART CONTAINER ############################
 
         html.Div([dcc.Graph(id='pie_chart_1',
                             config={'displayModeBar': 'hover'}),
                             ], className="create_container four columns", id="cross-filter-options"),
-                            
+
 ############################################### MAP CONTAINER  ####################################################
 
         html.Div([dcc.Graph(id="map_1")], className="create_container nine columns"),], className="row flex-display"),
@@ -150,12 +163,12 @@ layout = html.Div([
 ############################################   INFO CONTAINER #################################################
 
 @app.callback(Output('info_1', 'children'),
-              [Input('tools_1', 'value')],)
+              [Input('ssc', 'value')],)
 
 
-def update_info(tools):
+def update_info(ssc):
 
-    info=df[df['ERP']==tools][["ACCOUNTING TOOL","ERP","FINTECH"]]
+    info=df[df['SSC']==ssc][["ACCOUNTING TOOL","ERP","FINTECH"]]
     info.ERP = info.ERP.str.lstrip("SAP")
 
     def join_and(items):
@@ -172,7 +185,7 @@ def update_info(tools):
     RESPO=join_and(RESPO)
 
     def text(x,y):
-       text = ["FinTech team is accountable to ",x," for ",tools," in ",y,"."]
+       text = ["FinTech team is accountable to ",x," for ",ssc," in ",y,"."]
        return text
 
     return [html.H6(children=text(RESPO,ERP),
@@ -183,11 +196,11 @@ def update_info(tools):
 ############################################   TEXT1 #################################################
 
 @app.callback(Output('text1_1', 'children'),
-              [Input('tools_1', 'value')])
+              [Input('ssc', 'value')])
 
-def update_text1(tools):
-    ac=df[df['ERP']==tools]['ACCOUNTING TOOL'].unique()
-    
+def update_text1(ssc):
+    ac=df[df['SSC']==ssc]['ACCOUNTING TOOL'].unique()
+
     return [html.H6(children='Implemented ',
                     style = {'textAlign':'center',
                              'color': 'white',},),
@@ -201,42 +214,42 @@ def update_text1(tools):
                              'fontSize': 20,},),]
 
 ############################################   MODAL1 #################################################
-                   
+
 @app.callback(Output('dropdown1_1', 'options'),
-             [Input("tools_1", "value"),], 
+             [Input("ssc", "value"),],
              [Input("select_1", "value")],)
-             
-def output(tools,select):
-    dff1=df[df['ERP']==tools][['ACCOUNTING TOOL','SCANNING SOLUTION','ERP','COMPANY CODE','COUNTRY','ENTITY NAME']]
+
+def output(ssc,select):
+    dff1=df[df['SSC']==ssc][['ACCOUNTING TOOL','SCANNING SOLUTION','SSC','ERP','COMPANY CODE','COUNTRY','ENTITY NAME']]
     if select is None:
-        options=list(set(dff1['ERP']))
+        options=list(set(dff1['SSC']))
         return [{'label': i, 'value': i} for i in options]
-        
+
     options=list(set(dff1[select]))
     return [{'label': i, 'value': i} for i in options]
 
 @app.callback(Output('table_1', 'children'),
-             [Input("tools_1", "value"),], 
+             [Input("ssc", "value"),],
              [Input("select_1", "value")],
              [Input("dropdown1_1", "value")],)
-             
-def output_table(tools,select,dropdown):
-    dff1=df[df['ERP']==tools][['ACCOUNTING TOOL','SCANNING SOLUTION','ERP','COMPANY CODE','COUNTRY','ENTITY NAME']]
-    
+
+def output_table(ssc,select,dropdown):
+    dff1=df[df['SSC']==ssc][['ACCOUNTING TOOL','SCANNING SOLUTION','SSC','ERP','COMPANY CODE','COUNTRY','ENTITY NAME']]
+
     if select is not None:
         if dropdown is not None:
            dff = dff1[dff1[select].str.contains('|'.join(dropdown),na=False)]
-        
+
            return [dbc.Table.from_dataframe(dff, striped=True, bordered=True, hover=True)]
     return [dbc.Table.from_dataframe(dff1, striped=True, bordered=True, hover=True)]
-         
+
 
 @app.callback(
     Output("modal1_1", "is_open"),
     [Input("text1_1", "n_clicks"),
     Input("close1_1", "n_clicks"),],
     [State("modal1_1", "is_open")],)
-    
+
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
@@ -246,10 +259,10 @@ def toggle_modal(n1, n2, is_open):
 ############################################   TEXT2 #################################################
 
 @app.callback(Output('text2_1', 'children'),
-              [Input('tools_1', 'value')])
+              [Input('ssc', 'value')])
 
-def update_text2(tools):
-    scn=df[df['ERP']==tools]['SCANNING SOLUTION'].unique()
+def update_text2(ssc):
+    scn=df[df['SSC']==ssc]['SCANNING SOLUTION'].unique()
 
     if np.any(scn == 'None')==True:
        return[html.P(children='NO ',
@@ -265,70 +278,73 @@ def update_text2(tools):
                                 'color': 'orange',
                                 'fontSize': 20,},),]
     else:
-       return [html.H6(children='Used for ',
+       return [html.H6(children='Implemented',
                     style = {'textAlign':'center',
                              'color': 'white',},),
                html.P(len(scn),
                       style = {'textAlign':'center',
                                'color': 'orange',
                                'fontSize': 40,},),
-               html.P('Scanning Solution',
+               html.P('Scanning Solutions',
                        style = {'textAlign':'center',
                                 'color': 'orange',
                                 'fontSize': 20,},),]
-                                
-############################################   MODAL2 ################################################# 
-@app.callback(Output('dropdown2_1', 'options'),
-             [Input("tools_1", "value"),], )
-             
-def output(tools):
-    options=df[df['ERP']==tools]['ACCOUNTING TOOL'].unique()
-    
-    return [{'label': i, 'value': i} for i in options]
-    
-@app.callback(Output("data2_1", "children"),
-              [Input("tools_1", "value"),],
-              [Input("dropdown1_1", "value")])
 
-def data2(tools,dropdown):
-    
-    dff1=df[df['ACCOUNTING TOOL']==tools][['ACCOUNTING TOOL','SCANNING SOLUTION','COUNTRY']]
-    
+############################################   MODAL2 #################################################
+@app.callback(Output('dropdown2_1', 'options'),
+             [Input("ssc", "value"),], )
+
+def output(ssc):
+    options=df[df['SSC']==ssc]['ACCOUNTING TOOL'].unique()
+
+    return [{'label': i, 'value': i} for i in options]
+
+
+
+@app.callback(Output("data2_1", "children"),
+              [Input("ssc", "value"),],
+              [Input("dropdown2_1", "value")])
+
+def data2(ssc,dropdown):
+
+    dff=df[df['SSC']==ssc][['SSC','ACCOUNTING TOOL','SCANNING SOLUTION']]
+
+    if dropdown is not None:
+        dff1=dff[dff['ACCOUNTING TOOL']==dropdown][['SSC','ACCOUNTING TOOL','SCANNING SOLUTION']]
+    else :
+        dff1=dff
+
     names=dff1['SCANNING SOLUTION'].unique()
     def tabdata(number):
-        dff1_tab=dff1[dff1['SCANNING SOLUTION']==names[number]][['SCANNING SOLUTION','COUNTRY']]
-        
-        scn_data_tab=pd.pivot_table(dff1_tab,values=('COUNTRY'),index=['SCANNING SOLUTION','COUNTRY'],aggfunc='count')
+        dff1_tab=dff1[dff1['SCANNING SOLUTION']==names[number]][['SSC','ACCOUNTING TOOL','SCANNING SOLUTION']]
+
+        scn_data_tab=pd.pivot_table(dff1_tab,values=('SCANNING SOLUTION'),index=['SSC','ACCOUNTING TOOL','SCANNING SOLUTION'],aggfunc='count')
         scn_data_tab=scn_data_tab.reset_index()
-        
-        scn_tab=dff1_tab['COUNTRY'].unique()
-        
+
+
+
         return [dbc.Container([
-                              dbc.Row([
-                                        dbc.Col(dbc.Card(dbc.CardBody([html.H6(children='IMPLEMENTED IN ',
-                                                                               style = {'textAlign':'center','color': 'white','fontSize': 25,},),
-                                                                       html.P(f"{len(scn_tab)} Country(ies)" ,
-                                                                              style = {'textAlign':'center','color': '#09F3F0','fontSize': 35,})]))),
-                                        ]),          
+
                                html.Hr(),
                                dbc.Row([dbc.Table.from_dataframe(scn_data_tab, striped=True, bordered=True, hover=True)])])]
-    
-    
-    dff1_notab=pd.pivot_table(dff1[['ACCOUNTING TOOL','COUNTRY']],values=('COUNTRY'),index=['ACCOUNTING TOOL','COUNTRY'],aggfunc='count')
-    dff1_notab=dff1_notab.reset_index()
-    
+
+
+
     tabs = []
     for num in range(len(names)):
         tabs.append(dbc.Tab(
                             label=names[num],
                             tab_id=f"tab_{num + 1}",
                             children=tabdata(num)))
-                                              
+
     if np.any(names == 'None')==True:
-        return [dbc.Table.from_dataframe(dff1_notab, striped=True, bordered=True, hover=True)]
+        return html.P(' No Scanning Solution Used',
+                       style = {'textAlign':'center',
+                                'color': 'orange',
+                                'fontSize': 20,},),
     else:
 
-        return[dbc.Container([html.H3("Scanning Tools implemented for " + tools,style={'color':'black'}),
+        return[dbc.Container([html.H3("Scanning Tools implemented for " + ssc,style={'color':'black'}),
                               html.Hr(),
                               dbc.Tabs(children=tabs,
                                        active_tab="tab_1", ),])]
@@ -349,78 +365,91 @@ def toggle_modal(n1, n2, is_open):
 ############################################   TEXT3 #################################################
 
 @app.callback(Output('text3_1', 'children'),
-              [Input('tools_1', 'value')],)
+              [Input('ssc', 'value')],)
 
-def update_text3(tools):
+def update_text3(ssc):
 
-    BUs=df[df['ACCOUNTING TOOL']==tools]['ERP'].unique()
+    BUs=df[df['SSC']==ssc]['ERP'].unique()
 
     return [html.H6(children='Implemented in ',
                     style = {'textAlign':'center',
                             'color': 'white',},),
             html.P(len(BUs) ,
                     style = {'textAlign':'center',
-                             'color': '#09F3F0',
+                             'color': 'orange',
                              'fontSize': 40,},),
             html.P('BU / ERP',
                    style = {'textAlign':'center',
-                            'color': '#09F3F0',
+                            'color': 'orange',
                             'fontSize': 20,},),]
-                            
-############################################   MODAL3 #################################################
-@app.callback(Output("data3_1", "children"),
-              [Input("tools_1", "value"),],)
 
-def data3(tools):
-    
-    dff1=df[df['ACCOUNTING TOOL']==tools][['ACCOUNTING TOOL','SCANNING SOLUTION','ERP']]
-    
+############################################   MODAL3 #################################################
+
+@app.callback(Output('dropdown3_1', 'options'),
+             [Input("ssc", "value"),], )
+
+def output(ssc):
+    options=df[df['SSC']==ssc]['ACCOUNTING TOOL'].unique()
+
+    return [{'label': i, 'value': i} for i in options]
+
+
+
+@app.callback(Output("data3_1", "children"),
+              [Input("ssc", "value"),],
+              [Input("dropdown3_1", "value")])
+
+def data2(ssc,dropdown):
+
+    dff=df[df['SSC']==ssc][['SSC','ACCOUNTING TOOL','SCANNING SOLUTION','ERP']]
+
+    if dropdown is not None:
+        dff1=dff[dff['ACCOUNTING TOOL']==dropdown][['SSC','ACCOUNTING TOOL','SCANNING SOLUTION','ERP']]
+    else :
+        dff1=dff
+
     names=dff1['SCANNING SOLUTION'].unique()
     def tabdata(number):
-        dff1_tab=dff1[dff1['SCANNING SOLUTION']==names[number]][['SCANNING SOLUTION','ERP']]
-        
-        scn_data_tab=pd.pivot_table(dff1_tab,values=('ERP'),index=['SCANNING SOLUTION','ERP'],aggfunc='count')
+        dff1_tab=dff1[dff1['SCANNING SOLUTION']==names[number]][['SSC','ACCOUNTING TOOL','SCANNING SOLUTION','ERP']]
+
+        scn_data_tab=pd.pivot_table(dff1_tab,values=('SCANNING SOLUTION'),index=['SSC','ACCOUNTING TOOL','SCANNING SOLUTION','ERP'],aggfunc='count')
         scn_data_tab=scn_data_tab.reset_index()
-        
-        scn_tab=dff1_tab['ERP'].unique()
-        
+
+
+
         return [dbc.Container([
-                              dbc.Row([
-                                        dbc.Col(dbc.Card(dbc.CardBody([html.H6(children='IMPLEMENTED FOR ',
-                                                                               style = {'textAlign':'center','color': 'white','fontSize': 25,},),
-                                                                       html.P(f"{len(scn_tab)} ERP(s)" ,
-                                                                              style = {'textAlign':'center','color': '#09F3F0','fontSize': 35,})]))),
-                                        ]),          
+
                                html.Hr(),
                                dbc.Row([dbc.Table.from_dataframe(scn_data_tab, striped=True, bordered=True, hover=True)])])]
-    
-    
-    dff1_notab=pd.pivot_table(dff1[['ACCOUNTING TOOL','ERP']],values=('ERP'),index=['ACCOUNTING TOOL','ERP'],aggfunc='count')
+
+    dff1_notab=pd.pivot_table(dff1[['SSC','ACCOUNTING TOOL','ERP']],values=('ERP'),index=['SSC','ACCOUNTING TOOL','ERP'],aggfunc='count')
     dff1_notab=dff1_notab.reset_index()
-    
+
+
     tabs = []
     for num in range(len(names)):
         tabs.append(dbc.Tab(
                             label=names[num],
                             tab_id=f"tab_{num + 1}",
                             children=tabdata(num)))
-                                              
+
     if np.any(names == 'None')==True:
         return [dbc.Table.from_dataframe(dff1_notab, striped=True, bordered=True, hover=True)]
     else:
 
-        return[dbc.Container([html.H3("Scanning Tools implemented for " + tools,style={'color':'black'}),
+        return[dbc.Container([html.H3("Scanning Tools implemented for " + ssc,style={'color':'black'}),
                               html.Hr(),
                               dbc.Tabs(children=tabs,
                                        active_tab="tab_1", ),])]
 
 
+
 @app.callback(
     Output("modal3_1", "is_open"),
-    [Input("text3_1", "n_clicks"), 
+    [Input("text3_1", "n_clicks"),
     Input("close3_1", "n_clicks")],
     [State("modal3_1", "is_open")],)
-    
+
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
@@ -430,81 +459,90 @@ def toggle_modal(n1, n2, is_open):
 ############################################   TEXT4 #################################################
 
 @app.callback(Output('text4_1', 'children'),
-              [Input('tools_1', 'value')],)
+              [Input('ssc', 'value')],)
 
-def update_text4(tools):
+def update_text4(ssc):
 
-    Entities=df[df['ACCOUNTING TOOL']==tools]['COMPANY CODE'].unique()
+    Entities=df[df['SSC']==ssc]['COMPANY CODE'].unique()
 
     return [html.H6(children='Implemented in ',
                     style = {'textAlign':'center',
                              'color': 'white',},),
             html.P(len(Entities) ,
                     style = {'textAlign':'center',
-                             'color': '#e55467',
+                             'color': 'orange',
                              'fontSize': 40,},),
             html.P(' Entities',
                    style = {'textAlign':'center',
-                            'color': '#e55467',
+                            'color': 'orange',
                             'fontSize': 20,},),]
-                            
-                            
+
+
 ############################################   MODAL4 #################################################
 
+@app.callback(Output('dropdown4_1', 'options'),
+             [Input("ssc", "value"),], )
+
+def output(ssc):
+    options=df[df['SSC']==ssc]['ACCOUNTING TOOL'].unique()
+
+    return [{'label': i, 'value': i} for i in options]
+
+
+
 @app.callback(Output("data4_1", "children"),
-              [Input("tools_1", "value"),],)
+              [Input("ssc", "value"),],
+              [Input("dropdown4_1", "value")])
 
+def data2(ssc,dropdown):
 
-def data4(tools):
-    
-    dff1=df[df['ACCOUNTING TOOL']==tools][['ACCOUNTING TOOL','SCANNING SOLUTION','COMPANY CODE']]
-    
+    dff=df[df['SSC']==ssc][['SSC','ACCOUNTING TOOL','SCANNING SOLUTION','COMPANY CODE']]
+
+    if dropdown is not None:
+        dff1=dff[dff['ACCOUNTING TOOL']==dropdown][['SSC','ACCOUNTING TOOL','SCANNING SOLUTION','COMPANY CODE']]
+    else :
+        dff1=dff
+
     names=dff1['SCANNING SOLUTION'].unique()
     def tabdata(number):
-        dff1_tab=dff1[dff1['SCANNING SOLUTION']==names[number]][['SCANNING SOLUTION','COMPANY CODE']]
-        
-        scn_data_tab=pd.pivot_table(dff1_tab,values=('COMPANY CODE'),index=['SCANNING SOLUTION','COMPANY CODE'],aggfunc='count')
+        dff1_tab=dff1[dff1['SCANNING SOLUTION']==names[number]][['SSC','ACCOUNTING TOOL','SCANNING SOLUTION','COMPANY CODE']]
+
+        scn_data_tab=pd.pivot_table(dff1_tab,values=('SCANNING SOLUTION'),index=['SSC','ACCOUNTING TOOL','SCANNING SOLUTION','COMPANY CODE'],aggfunc='count')
         scn_data_tab=scn_data_tab.reset_index()
-        
-        scn_tab=dff1_tab['COMPANY CODE'].unique()
-        
+
+
+
         return [dbc.Container([
-                              dbc.Row([
-                                        dbc.Col(dbc.Card(dbc.CardBody([html.H6(children='IMPLEMENTED IN ',
-                                                                               style = {'textAlign':'center','color': 'white','fontSize': 25,},),
-                                                                       html.P(f"{len(scn_tab)} Entities" ,
-                                                                              style = {'textAlign':'center','color': '#09F3F0','fontSize': 35,})]))),
-                                        ]),          
+
                                html.Hr(),
                                dbc.Row([dbc.Table.from_dataframe(scn_data_tab, striped=True, bordered=True, hover=True)])])]
-    
-    
-    dff1_notab=pd.pivot_table(dff1[['ACCOUNTING TOOL','COMPANY CODE']],values=('COMPANY CODE'),index=['ACCOUNTING TOOL','COMPANY CODE'],aggfunc='count')
+
+    dff1_notab=pd.pivot_table(dff1[['SSC','ACCOUNTING TOOL','COMPANY CODE']],values=('COMPANY CODE'),index=['SSC','ACCOUNTING TOOL','COMPANY CODE'],aggfunc='count')
     dff1_notab=dff1_notab.reset_index()
-    
+
+
     tabs = []
     for num in range(len(names)):
         tabs.append(dbc.Tab(
                             label=names[num],
                             tab_id=f"tab_{num + 1}",
                             children=tabdata(num)))
-                                              
+
     if np.any(names == 'None')==True:
         return [dbc.Table.from_dataframe(dff1_notab, striped=True, bordered=True, hover=True)]
     else:
 
-        return[dbc.Container([html.H3("Scanning Tools implemented for " + tools,style={'color':'black'}),
+        return[dbc.Container([html.H3("Scanning Tools implemented for " + ssc,style={'color':'black'}),
                               html.Hr(),
                               dbc.Tabs(children=tabs,
                                        active_tab="tab_1", ),])]
-
 
 
 @app.callback(Output("modal4_1", "is_open"),
               [Input("text4_1", "n_clicks"),
               Input("close4_1", "n_clicks")],
               [State("modal4_1", "is_open")],)
-              
+
 def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
@@ -513,30 +551,21 @@ def toggle_modal(n1, n2, is_open):
 ############################################   PIE CHART #################################################
 
 @app.callback(Output('pie_chart_1', 'figure'),
-              [Input('tools_1', 'value')])
+              [Input('ssc', 'value')])
 
-def update_graph(tools):
-
-    labels=list(Counter(df["ACCOUNTING TOOL"]).keys()) # equals to list(set(words))
-    values=list(Counter(df["ACCOUNTING TOOL"]).values()) # counts the elements' frequency
+def update_graph(ssc):
+    dff1=df[df['SSC']==ssc][['SSC','ACCOUNTING TOOL']]
+    labels=list(Counter(dff1["ACCOUNTING TOOL"]).keys()) # equals to list(set(words))
+    values=list(Counter(dff1["ACCOUNTING TOOL"]).values()) # counts the elements' frequency
     colors = ['#09F3F0',  '#e55467','orange','#dd1e35']
-    
-    line_color=[]
-    pull=[]
-    for tool in labels:
-        if tool==tools:
-            pull.append(0.2)
-            line_color.append('blue')
-        else:
-            pull.append(0)
-            line_color.append('#1f2c56')
-            
+
+
 
     return {
         'data': [go.Pie(labels=labels,
                         values=values,
-                        pull=pull,
-                        marker=dict(colors=colors,line=dict(color=line_color, width=2)),
+
+                        marker=dict(colors=colors,),
                         hoverinfo='label+value+percent',
                         textinfo='label+value',
                         textfont=dict(size=13),
@@ -576,11 +605,11 @@ def update_graph(tools):
 ############################################   MAP #################################################
 
 @app.callback(Output("map_1", "figure"),
-              Input("tools_1", "value"),)
+              Input("ssc", "value"),)
 
-def updateGraphCB(tools):
-    map_data=df[df['ACCOUNTING TOOL']==tools][["ACCOUNTING TOOL","SCANNING SOLUTION","ERP","LAT","LNG","COMPANY CODE","ENTITY NAME","COUNTRY","FINTECH"]]
-    
+def updateGraphCB(ssc):
+    map_data=df[df['SSC']==ssc][["ACCOUNTING TOOL","SCANNING SOLUTION","ERP","LAT","LNG","COMPANY CODE","ENTITY NAME","COUNTRY","FINTECH"]]
+
     if np.any(map_data["SCANNING SOLUTION"] == 'None')==True:
         name=' '
     else:
@@ -589,14 +618,14 @@ def updateGraphCB(tools):
     fig = go.Figure()
     fig.add_trace(go.Scattermapbox(lon=map_data ['LNG'],
                                    lat=map_data ['LAT'],
-                                   name=  tools ,
+                                   name= ssc ,
                                    mode='markers',
                                    marker=dict(size=15),
-                                   meta=tools,
+                                   meta=map_data ['ACCOUNTING TOOL'].astype(str),
                                    hoverinfo='text',
                                    hovertext=
                                     '<b>Country</b>: ' + map_data['COUNTRY'].astype(str) + '<br>' +
-                                    '<b>Tool</b>: ' + tools + ' ' + name+'<br>' +
+                                    '<b>Tool</b>: ' + map_data ['ACCOUNTING TOOL'].astype(str) + ' ' + name+'<br>' +
                                     '<b>BU</b>: ' +  map_data['ERP'].astype(str) + '<br>' +
                                     '<b>Company Code</b>: ' + map_data['COMPANY CODE'].astype(str) ))
 
@@ -620,9 +649,7 @@ def updateGraphCB(tools):
 @app.callback(Output("download-dataframe-xlsx_1", "data"),
               Input("btn_xlsx_1", "n_clicks"),
               prevent_initial_call=True,)
-              
+
 def func(n_clicks):
     df=df[["ACCOUNTING TOOL","SCANNING SOLUTION","ERP","COMPANY CODE","ENTITY NAME","COUNTRY","FINTECH"]]
     return dcc.send_data_frame(df.to_excel, "MDM_DATA.xlsx", sheet_name="Customer - Vendor",index=False)
-
-
